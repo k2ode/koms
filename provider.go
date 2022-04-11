@@ -7,5 +7,3 @@ type Provider interface {
 
 	SendMessage(id string, body string) error
 }
-
-type provider struct {}

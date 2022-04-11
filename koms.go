@@ -20,3 +20,9 @@ type Reaction struct {
 	emoji string
 	from  string
 }
+
+type Contact struct {
+	id   string
+	name string
+	tags []string
+}
