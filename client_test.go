@@ -15,10 +15,10 @@ func TestClientNoProviders(t *testing.T) {
 }
 
 func TestClientMockProvider(t *testing.T) {
-	// provider, _ := NewProviderMock()
-	_, err := NewClient()
+	provider, _ := NewProviderMock()
+	client, err := NewClient(provider)
 	assert.NoError(t, err, "New client w/ mock provider should not return an error")
 
-
-	
+	providers := client.GetProviders()
+	assert.Equal(t, len(providers), 1)
 }

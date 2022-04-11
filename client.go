@@ -5,12 +5,14 @@ type Client interface {
 	GetProviders() []Provider
 }
 
-type client struct {}
+type client struct {
+	providers []Provider
+}
 
-func NewClient() (Client, error) {
-	return &client{}, nil
+func NewClient(providers ...Provider) (Client, error) {
+	return &client{ providers }, nil
 }
 
 func (client *client) GetProviders() []Provider {
-	return []Provider{}
+	return client.providers
 }
