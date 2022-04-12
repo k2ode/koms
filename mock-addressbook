@@ -1,0 +1,11 @@
+# abook address book format
+
+[format]
+program=abook
+version=0.6.1
+
+[0]
+name=John Woods
+mobile=+18005559999
+email=john@example.com
+groups=dr
