@@ -22,3 +22,24 @@ func TestContactsIdMap(t *testing.T) {
 	id := idMap["911"]
 	assert.Equal(t, id, "12")
 }
+
+func TestContactsGetContactInvalidId(t *testing.T) {
+	contacts, _ := NewContactsMock()
+
+	_, err := contacts.GetContact("invalid")
+	assert.Error(t, err)
+}
+
+
+func TestContactsGetFromId(t *testing.T) {
+	contacts, _ := NewContactsMock()
+
+	contact, err := contacts.GetContact("12")
+	assert.NoError(t, err)
+
+	assert.NotNil(t, contact)
+
+	assert.Equal(t, contact.id, "12")
+	assert.Equal(t, contact.name, "The Police")
+	assert.Equal(t, contact.tags, []string{"friends"})
+}
