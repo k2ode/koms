@@ -9,7 +9,7 @@ type client struct {
 	providers []Provider
 }
 
-func NewClient(providers ...Provider) (Client, error) {
+func NewClient(providers []Provider, contacts Contacts) (Client, error) {
 	return &client{ providers }, nil
 }
 
