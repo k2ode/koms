@@ -1,4 +1,4 @@
-package koms
+package main
 
 type Contacts interface {
 	GetIdMap() (map[string]string, error)

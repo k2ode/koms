@@ -1,3 +1,3 @@
-package koms
+package main
 
 const USER = "USER"

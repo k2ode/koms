@@ -1,4 +1,4 @@
-package koms
+package main
 
 type Provider interface {
 	GetConversations() ([]Conversation, error)

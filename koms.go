@@ -1,4 +1,4 @@
-package koms
+package main
 
 import "time"
 

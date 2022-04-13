@@ -1,4 +1,4 @@
-package koms
+package main
 
 import (
 	"testing"
@@ -28,4 +28,14 @@ func TestClientContactsMock(t *testing.T) {
 	_, err := NewClient([]Provider{}, contacts)
 
 	assert.NoError(t, err, "New client with mock contacts should not return an error")
+}
+
+func TestClientProviderMockGetConversations(t *testing.T) {
+	provider, _ := NewProviderMock()
+	client, _ := NewClient([]Provider{provider}, nil)
+
+	conversations, err := client.GetConversations()
+	assert.NoError(t, err)
+
+	assert.Equal(t, len(conversations), 2)
 }
