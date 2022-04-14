@@ -2,11 +2,19 @@ package main
 
 import "time"
 
+type PersonOrGroupChat struct {
+	conversations []Conversation
+	contactIds    []string
+	isGroupChat   bool
+	label         string
+}
+
 type Conversation struct {
-	id          string
-	label       string
-	isGroupChat bool
-	people      []string
+	proivder       string
+	id             string
+	participantIds []string
+	isGroupChat    bool
+	label          string
 }
 
 type Message struct {

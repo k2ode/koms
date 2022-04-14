@@ -23,13 +23,13 @@ func TestProviderMockConversations(t *testing.T) {
 	privateChat := conversations[0]
 	assert.Equal(t, privateChat.id, "0")
 	assert.False(t, privateChat.isGroupChat)
-	assert.Equal(t, privateChat.people, []string{"a:0"})
+	assert.Equal(t, privateChat.participantIds, []string{"a:0"})
 
 	groupChat := conversations[1]
 	assert.Equal(t, groupChat.id, "1")
 	// assert.Equal(t, groupChat.label, "Example Group Chat")
 	assert.True(t, groupChat.isGroupChat)
-	assert.Equal(t, groupChat.people, []string{"a:0", "a:1"})
+	assert.Equal(t, groupChat.participantIds, []string{"a:0", "a:1"})
 }
 
 func TestProviderMockConversationMessagesInvalidId(t *testing.T) {

@@ -22,7 +22,7 @@ func NewProviderMockA() (Provider, error) {
 				meta: Conversation{
 					id: "0",
 					isGroupChat: false,
-					people: []string{"a:0"},
+					participantIds: []string{"a:0"},
 				},
 				messages: []Message{
 					{
@@ -45,7 +45,7 @@ func NewProviderMockA() (Provider, error) {
 				meta: Conversation{
 					id: "1",
 					isGroupChat: true,
-					people: []string{"a:0", "a:1"},
+					participantIds: []string{"a:0", "a:1"},
 				},
 				messages: []Message{
 					{
@@ -71,7 +71,7 @@ func NewProviderMockB() (Provider, error) {
 				meta: Conversation{
 					id: "0",
 					isGroupChat: false,
-					people: []string{"b:0"},
+					participantIds: []string{"b:0"},
 				},
 				messages: []Message{
 					{

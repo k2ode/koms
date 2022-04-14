@@ -25,7 +25,7 @@ func GetClient() (Client, error) {
 	return client, nil
 }
 
-func ParseConversation(client Client, conversation Conversation) string {
+func ParseConversation(client Client, conversation PersonOrGroupChat) string {
 	parseIds := func (ids []string) string {
 		return strings.Join(ids, ", ")
 	}
@@ -33,7 +33,7 @@ func ParseConversation(client Client, conversation Conversation) string {
 	var result string
 
 	if conversation.label != "" { result  = conversation.label } else
-	{ result = parseIds(conversation.people) }
+	{ result = parseIds(conversation.contactIds) }
 
 	return result
 }
