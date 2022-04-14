@@ -24,28 +24,27 @@ func GetClient() (Client, error) {
 }
 
 func ParseConversation(client Client, conversation Conversation) string {
+	parsePerson := func (id string) string {
+		contact, err := client.GetContact(id)
+		if err != nil { return "<" + id + ">" }
+
+		return contact.name
+	}
+
+	parsePersons := func (ids []string) string {
+		var res string
+		for _, id := range ids {
+			res = res + parsePerson(id)
+		}
+		return res
+	}
+
 	var res string
 
 	if conversation.label != "" { res = conversation.label } else
-	{ res = ParsePersons(client, conversation.people) }
+	{ res = parsePersons(conversation.people) }
 
 	if conversation.isGroupChat { res = GROUPCHAT_PREFIX + res }
 
 	return res
-}
-
-func ParsePersons(client Client, persons []string) string {
-	var res string
-
-	for _, person := range persons {
-		res = res + ParsePerson(client, person)
-	}
-
-	return res
-}
-
-func ParsePerson(client Client, contactId string) string {
-	contact, err := client.GetContact(contactId)
-	if err != nil { return "<" + contactId + ">" }
-	return contact.name
 }
