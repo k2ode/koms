@@ -22,7 +22,7 @@ func NewProviderMockA() (Provider, error) {
 				meta: Conversation{
 					id: "0",
 					isGroupChat: false,
-					people: []string{"0"},
+					people: []string{"a:0"},
 				},
 				messages: []Message{
 					{
@@ -34,7 +34,7 @@ func NewProviderMockA() (Provider, error) {
 					},
 					{
 						id: "1",
-						from: "0",
+						from: "a:0",
 						body: "hello there",
 						timestamp: time.Unix(int64(1649619617), 0),
 						reactions: []Reaction{},
@@ -44,9 +44,8 @@ func NewProviderMockA() (Provider, error) {
 			{
 				meta: Conversation{
 					id: "1",
-					label: "Example Group Chat",
 					isGroupChat: true,
-					people: []string{"0", "1"},
+					people: []string{"a:0", "a:1"},
 				},
 				messages: []Message{
 					{
@@ -56,7 +55,7 @@ func NewProviderMockA() (Provider, error) {
 					},
 					{
 						id: "1",
-						from: "1",
+						from: "a:1",
 						body: "你好世界!",
 					},
 				},
@@ -72,6 +71,7 @@ func NewProviderMockB() (Provider, error) {
 				meta: Conversation{
 					id: "0",
 					isGroupChat: false,
+					people: []string{"b:0"},
 				},
 				messages: []Message{
 					{

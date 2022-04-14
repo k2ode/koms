@@ -14,7 +14,7 @@ func TestClientProviderNone(t *testing.T) {
 	assert.Empty(t, providers, "New client with no providers should return no providers")
 }
 
-func TestClientProviderMock(t *testing.T) {
+func TestClientProviderMockA(t *testing.T) {
 	provider, _ := NewProviderMockA()
 	client, err := NewClient([]Provider{provider}, nil)
 	assert.NoError(t, err, "New client w/ mock provider should not return an error")
@@ -23,14 +23,14 @@ func TestClientProviderMock(t *testing.T) {
 	assert.Equal(t, len(providers), 1)
 }
 
-func TestClientContactsMock(t *testing.T) {
+func TestClientContactsMockA(t *testing.T) {
 	contacts, _ := NewContactsMock()
 	_, err := NewClient([]Provider{}, contacts)
 
 	assert.NoError(t, err, "New client with mock contacts should not return an error")
 }
 
-func TestClientProviderMockGetConversations(t *testing.T) {
+func TestClientProviderMockAGetConversations(t *testing.T) {
 	provider, _ := NewProviderMockA()
 	client, _ := NewClient([]Provider{provider}, nil)
 
@@ -40,7 +40,7 @@ func TestClientProviderMockGetConversations(t *testing.T) {
 	assert.Equal(t, len(conversations), 2)
 }
 
-func TestClientContactsMockGetContact(t *testing.T) {
+func TestClientContactsMockAGetContact(t *testing.T) {
 	contacts, _ := NewContactsMock()
 	client, _ := NewClient([]Provider{}, contacts)
 
@@ -48,4 +48,16 @@ func TestClientContactsMockGetContact(t *testing.T) {
 	assert.NoError(t, err)
 
 	assert.Equal(t, contact.id, "0")
+}
+
+func TestClientMockABContact(t *testing.T) {
+	contacts, _ := NewContactsMock()
+	providerA, _ := NewProviderMockA()
+	providerB, _ := NewProviderMockB()
+	client, _ := NewClient([]Provider{providerA, providerB}, contacts)
+
+	conversations, err := client.GetConversations()
+	assert.NoError(t, err)
+	assert.Equal(t, len(conversations), 2)
+
 }
