@@ -15,7 +15,8 @@ func run() {
 	if err != nil { panic(err) }
 
 	for _, conversation := range conversations {
-		listConversations.AddItem(ParseConversation(conversation), "", 0, nil)
+		labelConversation := ParseConversation(client, conversation)
+		listConversations.AddItem(labelConversation, "", 0, nil)
 	}
 
 

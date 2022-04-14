@@ -17,10 +17,13 @@ func TestContactsIdMap(t *testing.T) {
 	idMap, err := contacts.GetIdMap()
 	assert.NoError(t, err)
 
-	assert.Equal(t, len(idMap), 1)
+	assert.Equal(t, len(idMap), 2)
 
-	id := idMap["911"]
-	assert.Equal(t, id, "12")
+	firstId := idMap["+18001112222"]
+	assert.Equal(t, firstId, "0")
+
+	secondId := idMap["+18002223333"]
+	assert.Equal(t, secondId, "1")
 }
 
 func TestContactsGetContactInvalidId(t *testing.T) {
@@ -34,12 +37,17 @@ func TestContactsGetContactInvalidId(t *testing.T) {
 func TestContactsGetFromId(t *testing.T) {
 	contacts, _ := NewContactsMock()
 
-	contact, err := contacts.GetContact("12")
+	firstContact, err := contacts.GetContact("0")
 	assert.NoError(t, err)
 
-	assert.NotNil(t, contact)
+	assert.Equal(t, firstContact.id, "0")
+	assert.Equal(t, firstContact.name, "Johnny")
+	assert.Equal(t, firstContact.tags, []string{"friends"})
 
-	assert.Equal(t, contact.id, "12")
-	assert.Equal(t, contact.name, "The Police")
-	assert.Equal(t, contact.tags, []string{"friends"})
+	secondContact, err := contacts.GetContact("1")
+	assert.NoError(t, err)
+
+	assert.Equal(t, secondContact.id, "1")
+	assert.Equal(t, secondContact.name, "Andrew")
+	assert.Equal(t, secondContact.tags, []string{"friends"})
 }

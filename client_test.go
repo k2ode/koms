@@ -15,7 +15,7 @@ func TestClientProviderNone(t *testing.T) {
 }
 
 func TestClientProviderMock(t *testing.T) {
-	provider, _ := NewProviderMock()
+	provider, _ := NewProviderMockA()
 	client, err := NewClient([]Provider{provider}, nil)
 	assert.NoError(t, err, "New client w/ mock provider should not return an error")
 
@@ -31,11 +31,21 @@ func TestClientContactsMock(t *testing.T) {
 }
 
 func TestClientProviderMockGetConversations(t *testing.T) {
-	provider, _ := NewProviderMock()
+	provider, _ := NewProviderMockA()
 	client, _ := NewClient([]Provider{provider}, nil)
 
 	conversations, err := client.GetConversations()
 	assert.NoError(t, err)
 
 	assert.Equal(t, len(conversations), 2)
+}
+
+func TestClientContactsMockGetContact(t *testing.T) {
+	contacts, _ := NewContactsMock()
+	client, _ := NewClient([]Provider{}, contacts)
+
+	contact, err := client.GetContact("0")
+	assert.NoError(t, err)
+
+	assert.Equal(t, contact.id, "0")
 }

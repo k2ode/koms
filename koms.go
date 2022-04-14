@@ -6,6 +6,7 @@ type Conversation struct {
 	id          string
 	label       string
 	isGroupChat bool
+	people      []string
 }
 
 type Message struct {

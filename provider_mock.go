@@ -15,13 +15,62 @@ type providerMock struct {
 	conversations []ConversationData
 }
 
-func NewProviderMock() (Provider, error) {
+func NewProviderMockA() (Provider, error) {
 	return &providerMock{
 		conversations: []ConversationData{
 			{
 				meta: Conversation{
 					id: "0",
-					label: "Example Private Chat",
+					isGroupChat: false,
+					people: []string{"0"},
+				},
+				messages: []Message{
+					{
+						id: "0",
+						from: USER,
+						body: "hi world",
+						timestamp: time.Unix(int64(1649619517), 0),
+						reactions: []Reaction{},
+					},
+					{
+						id: "1",
+						from: "0",
+						body: "hello there",
+						timestamp: time.Unix(int64(1649619617), 0),
+						reactions: []Reaction{},
+					},
+				},
+			},
+			{
+				meta: Conversation{
+					id: "1",
+					label: "Example Group Chat",
+					isGroupChat: true,
+					people: []string{"0", "1"},
+				},
+				messages: []Message{
+					{
+						id: "0",
+						from: USER,
+						body: "hi world",
+					},
+					{
+						id: "1",
+						from: "1",
+						body: "你好世界!",
+					},
+				},
+			},
+		},
+	}, nil
+}
+
+func NewProviderMockB() (Provider, error) {
+	return &providerMock{
+		conversations: []ConversationData{
+			{
+				meta: Conversation{
+					id: "0",
 					isGroupChat: false,
 				},
 				messages: []Message{
@@ -34,29 +83,9 @@ func NewProviderMock() (Provider, error) {
 					},
 				},
 			},
-			{
-				meta: Conversation{
-					id: "1",
-					label: "Example Group Chat",
-					isGroupChat: true,
-				},
-				messages: []Message{
-					{
-						id: "0",
-						from: USER,
-						body: "hi world",
-					},
-					{
-						id: "1",
-						from: "aitianqi",
-						body: "你好世界!",
-					},
-				},
-			},
 		},
 	}, nil
 }
-
 func (providerMock *providerMock) GetConversations() ([]Conversation, error) {
 	var conversations []Conversation
 	for _, cp := range providerMock.conversations {

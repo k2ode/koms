@@ -11,15 +11,23 @@ func NewContactsMock() (Contacts, error) {
 
 func (contacts *contactsMock) GetIdMap() (map[string]string, error) {
 	idMap := make(map[string]string)
-	idMap["911"] = "12"
+	idMap["+18001112222"] = "0"
+	idMap["+18002223333"] = "1"
 	return idMap, nil
 }
 
 func (contacts *contactsMock) GetContact(id string) (Contact, error) {
-	if id == "12" {
+	if id == "0" {
 		return Contact{
-			id: "12",
-			name: "The Police",
+			id: "0",
+			name: "Johnny",
+			tags: []string{"friends"},
+		}, nil
+	}
+	if id == "1" {
+		return Contact{
+			id: "1",
+			name: "Andrew",
 			tags: []string{"friends"},
 		}, nil
 	}
