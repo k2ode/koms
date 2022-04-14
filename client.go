@@ -3,10 +3,12 @@ package main
 
 type Client interface {
 	GetProviders() []Provider
-
+	
 	GetConversations() ([]Conversation, error)
 
 	GetContact(id string) (Contact, error)
+
+	GetIdMap() (IdMap, error)
 }
 
 type client struct {
@@ -25,6 +27,7 @@ func (client *client) GetProviders() []Provider {
 func (client *client) GetConversations() ([]Conversation, error) {
 	conversations := []Conversation{}
 
+
 	for _, provider := range client.GetProviders() {
 		providerConversations, err := provider.GetConversations()
 		if err != nil { return nil, err }
@@ -35,4 +38,8 @@ func (client *client) GetConversations() ([]Conversation, error) {
 
 func (client *client) GetContact(id string) (Contact, error) {
 	return client.contacts.GetContact(id)
+}
+
+func (client *client) GetIdMap() (IdMap, error) {
+	return client.contacts.GetIdMap()
 }

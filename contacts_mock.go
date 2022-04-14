@@ -9,10 +9,11 @@ func NewContactsMock() (Contacts, error) {
 	return &contactsMock{}, nil
 }
 
-func (contacts *contactsMock) GetIdMap() (map[string]string, error) {
+func (contacts *contactsMock) GetIdMap() (IdMap, error) {
 	idMap := make(map[string]string)
-	idMap["+18001112222"] = "0"
-	idMap["+18002223333"] = "1"
+	idMap["a:0"] = "0"
+	idMap["a:1"] = "1"
+	idMap["b:0"] = "0"
 	return idMap, nil
 }
 

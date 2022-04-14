@@ -50,6 +50,25 @@ func TestClientContactsMockAGetContact(t *testing.T) {
 	assert.Equal(t, contact.id, "0")
 }
 
+func TestClientMockContactsGetIdMap(t *testing.T) {
+	contacts, _ := NewContactsMock()
+	client, _ := NewClient([]Provider{}, contacts)
+
+	idMap, err := client.GetIdMap()
+	assert.NoError(t, err)
+	a0, exists := idMap["a:0"]
+	assert.True(t, exists)
+	assert.Equal(t, a0, "0")
+
+	a1, exists := idMap["a:1"]
+	assert.True(t, exists)
+	assert.Equal(t, a1, "1")
+
+	b0, exists := idMap["b:0"]
+	assert.True(t, exists)
+	assert.Equal(t, b0, "0")
+}
+
 func TestClientMockABContact(t *testing.T) {
 	contacts, _ := NewContactsMock()
 	providerA, _ := NewProviderMockA()

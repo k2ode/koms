@@ -51,7 +51,7 @@ func ParseABookFormat(content string) ABookFormat {
 	return result
 }
 
-func (contacts *contactsABook) GetIdMap() (map[string]string, error) {
+func (contacts *contactsABook) GetIdMap() (IdMap, error) {
 	idMap := make(map[string]string)
 	for id, attrs := range contacts.parsed {
 

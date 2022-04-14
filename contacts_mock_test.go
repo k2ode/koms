@@ -17,13 +17,16 @@ func TestContactsIdMap(t *testing.T) {
 	idMap, err := contacts.GetIdMap()
 	assert.NoError(t, err)
 
-	assert.Equal(t, len(idMap), 2)
+	assert.Equal(t, len(idMap), 3)
 
-	firstId := idMap["+18001112222"]
-	assert.Equal(t, firstId, "0")
+	a0 := idMap["a:0"]
+	assert.Equal(t, a0, "0")
 
-	secondId := idMap["+18002223333"]
-	assert.Equal(t, secondId, "1")
+	a1 := idMap["a:1"]
+	assert.Equal(t, a1, "1")
+
+	b0 := idMap["b:0"]
+	assert.Equal(t, b0, "0")
 }
 
 func TestContactsGetContactInvalidId(t *testing.T) {
