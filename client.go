@@ -1,6 +1,9 @@
 package main
 
-import "errors"
+import (
+	"errors"
+	"sort"
+)
 
 
 type Client interface {
@@ -150,6 +153,10 @@ func (client *client) GetConversationMessages(conversation PersonOrGroupChat) ([
 		if err != nil { panic(err) }
 		messages = append(messages, conversationMessages...)
 	}
+
+	sort.Slice(messages, func(p, q int) bool {
+		return messages[p].timestamp.Before(messages[q].timestamp)
+	})
 
 	return messages, nil
 }

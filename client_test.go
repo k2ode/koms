@@ -90,12 +90,12 @@ func TestClientMockABContact(t *testing.T) {
 	assert.Equal(t, firstMessage.timestamp, time.Unix(0, 0))
 
 	secondMessage := messages[1]
-	assert.Equal(t, secondMessage.provider, "a")
-	assert.Equal(t, secondMessage.timestamp, time.Unix(200, 0))
+	assert.Equal(t, secondMessage.provider, "b")
+	assert.Equal(t, secondMessage.timestamp, time.Unix(100, 0))
 
 	thirdMessage := messages[2]
-	assert.Equal(t, thirdMessage.provider, "b")
-	assert.Equal(t, thirdMessage.timestamp, time.Unix(100, 0))
+	assert.Equal(t, thirdMessage.provider, "a")
+	assert.Equal(t, thirdMessage.timestamp, time.Unix(200, 0))
 }
 
 func TestClientMockAGetProvider(t *testing.T) {
