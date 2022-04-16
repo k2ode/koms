@@ -10,17 +10,18 @@ type PersonOrGroupChat struct {
 }
 
 type Conversation struct {
-	proivder       string
 	id             string
 	participantIds []string
 	isGroupChat    bool
 	label          string
+	provider       string
 }
 
 type Message struct {
 	id        string
 	from      string
 	body      string
+	provider  string
 	timestamp time.Time
 	reactions []Reaction
 }

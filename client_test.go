@@ -2,6 +2,7 @@ package main
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -78,5 +79,32 @@ func TestClientMockABContact(t *testing.T) {
 	conversations, err := client.GetConversations()
 	assert.NoError(t, err)
 	assert.Equal(t, len(conversations), 2)
+
+	conversation := conversations[0]
+	messages, err := client.GetConversationMessages(conversation)
+
+	assert.Equal(t, len(messages), 3)
+
+	firstMessage := messages[0]
+	assert.Equal(t, firstMessage.provider, "a")
+	assert.Equal(t, firstMessage.timestamp, time.Unix(0, 0))
+
+	secondMessage := messages[1]
+	assert.Equal(t, secondMessage.provider, "a")
+	assert.Equal(t, secondMessage.timestamp, time.Unix(200, 0))
+
+	thirdMessage := messages[2]
+	assert.Equal(t, thirdMessage.provider, "b")
+	assert.Equal(t, thirdMessage.timestamp, time.Unix(100, 0))
+}
+
+func TestClientMockAGetProvider(t *testing.T) {
+	providerA, _ := NewProviderMockA()
+	client, _ := NewClient([]Provider{providerA}, nil)
+
+	provider, err := client.GetProvider("a")
+
+	assert.NoError(t, err)
+	assert.Equal(t, provider.GetId(), "a")
 
 }

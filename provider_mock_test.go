@@ -2,6 +2,7 @@ package main
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -49,16 +50,18 @@ func TestProviderMockConversationMessagesPrivateChat(t *testing.T) {
 	assert.Equal(t, firstMessage.id, "0")
 	assert.Equal(t, firstMessage.from, USER)
 	assert.Equal(t, firstMessage.body, "hi world")
-	assert.Equal(t, firstMessage.timestamp.Unix(), int64(1649619517))
+	assert.Equal(t, firstMessage.timestamp, time.Unix(0, 0))
 	assert.Equal(t, firstMessage.reactions, []Reaction{})
+	assert.Equal(t, firstMessage.provider, "a")
 
 
 	secondMessage := messages[1]
 	assert.Equal(t, secondMessage.id, "1")
 	assert.Equal(t, secondMessage.from, "a:0")
 	assert.Equal(t, secondMessage.body, "hello there")
-	assert.Equal(t, secondMessage.timestamp.Unix(), int64(1649619617))
+	assert.Equal(t, secondMessage.timestamp, time.Unix(200, 0))
 	assert.Equal(t, secondMessage.reactions, []Reaction{})
+	assert.Equal(t, secondMessage.provider, "a")
 }
 
 func TestProviderMockConversationMessageGroupChat(t *testing.T) {
@@ -73,11 +76,17 @@ func TestProviderMockConversationMessageGroupChat(t *testing.T) {
 	assert.Equal(t, firstMessage.id, "0")
 	assert.Equal(t, firstMessage.from, USER)
 	assert.Equal(t, firstMessage.body, "hi world")
+	assert.Equal(t, firstMessage.timestamp, time.Unix(200, 0))
+	assert.Equal(t, firstMessage.reactions, []Reaction{})
+	assert.Equal(t, firstMessage.provider, "a")
 
 	unicodeMessage := messages[1]
 	assert.Equal(t, unicodeMessage.id, "1")
 	assert.Equal(t, unicodeMessage.from, "a:1")
 	assert.Equal(t, unicodeMessage.body, "你好世界!")
+	assert.Equal(t, unicodeMessage.timestamp, time.Unix(300, 0))
+	assert.Equal(t, unicodeMessage.reactions, []Reaction{})
+	assert.Equal(t, unicodeMessage.provider, "a")
 }
 
 func TestProviderMockSendMessageInvalidId(t *testing.T) {

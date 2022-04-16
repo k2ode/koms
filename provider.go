@@ -6,4 +6,6 @@ type Provider interface {
 	GetConversationMessages(id string) ([]Message, error)
 
 	SendMessage(id string, body string) error
+
+	GetId() string
 }

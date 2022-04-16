@@ -1,27 +1,49 @@
 package main
 
+import "errors"
+
 
 type Client interface {
 	GetProviders() []Provider
+
+	GetProvider(id string) (Provider, error)
 	
 	GetConversations() ([]PersonOrGroupChat, error)
 
 	GetContact(id string) (Contact, error)
 
 	GetIdMap() (IdMap, error)
+
+	GetConversationMessages(conversation PersonOrGroupChat) ([]Message, error)
 }
 
 type client struct {
-	providers []Provider
-	contacts  Contacts
+	providers map[string]Provider
+	contacts    Contacts
 }
 
 func NewClient(providers []Provider, contacts Contacts) (Client, error) {
-	return &client{ providers, contacts }, nil
+	providerMap := make(map[string]Provider)
+	for _, provider := range providers {
+		providerMap[provider.GetId()] = provider
+	}
+
+	return &client{ providerMap, contacts }, nil
 }
 
 func (client *client) GetProviders() []Provider {
-	return client.providers
+	var providers []Provider
+	for _, provider := range client.providers {
+		providers = append(providers, provider)
+	}
+	return providers
+}
+
+func (client *client) GetProvider(id string) (Provider, error) {
+	for _, provider := range client.providers {
+		if provider.GetId() == id { return provider, nil }
+	}
+	return nil, errors.New("invalid provider")
 }
 
 func (client *client) GetConversations() ([]PersonOrGroupChat, error) {
@@ -100,6 +122,8 @@ func (client *client) GetConversations() ([]PersonOrGroupChat, error) {
 			position++
 		} 
 
+		// conversation.provider = 
+
 		conversations[convPos].conversations = append(conversations[convPos].conversations, conversation)
 	}
 
@@ -112,4 +136,20 @@ func (client *client) GetContact(id string) (Contact, error) {
 
 func (client *client) GetIdMap() (IdMap, error) {
 	return client.contacts.GetIdMap()
+}
+
+func (client *client) GetConversationMessages(conversation PersonOrGroupChat) ([]Message, error) {
+	var messages []Message
+
+
+
+	for _, convo := range conversation.conversations {
+		provider, exists := client.providers[convo.provider]
+		if !exists { return messages, errors.New("invalid provider") }
+		conversationMessages, err := provider.GetConversationMessages(convo.id)
+		if err != nil { panic(err) }
+		messages = append(messages, conversationMessages...)
+	}
+
+	return messages, nil
 }
