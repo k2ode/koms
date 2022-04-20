@@ -25,7 +25,7 @@ func GetClient() (Client, error) {
 	return client, nil
 }
 
-func ParseConversation(client Client, conversation PersonOrGroupChat) string {
+func ParseConversation(client Client, conversation Conversation) string {
 	parseIds := func (ids []string) string {
 		return strings.Join(ids, ", ")
 	}
@@ -36,4 +36,10 @@ func ParseConversation(client Client, conversation PersonOrGroupChat) string {
 	{ result = parseIds(conversation.contactIds) }
 
 	return result
+}
+
+func ParseMessage(client Client, message MessageRaw) string {
+	messagePrefix := message.from
+	if message.from == USER { messagePrefix = "[blue]" }
+	return messagePrefix + message.body
 }

@@ -1,9 +1,9 @@
 package main
 
 type Provider interface {
-	GetConversations() ([]Conversation, error)
+	GetConversations() ([]ConversationRaw, error)
 
-	GetConversationMessages(id string) ([]Message, error)
+	GetConversationMessages(id string) ([]MessageRaw, error)
 
 	SendMessage(id string, body string) error
 

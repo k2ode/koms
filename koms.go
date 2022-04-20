@@ -2,14 +2,14 @@ package main
 
 import "time"
 
-type PersonOrGroupChat struct {
-	conversations []Conversation
+type Conversation struct {
+	conversations []ConversationRaw
 	contactIds    []string
 	isGroupChat   bool
 	label         string
 }
 
-type Conversation struct {
+type ConversationRaw struct {
 	id             string
 	participantIds []string
 	isGroupChat    bool
@@ -17,9 +17,17 @@ type Conversation struct {
 	provider       string
 }
 
-type Message struct {
+type MessageRaw struct {
 	id        string
 	from      string
+	body      string
+	timestamp time.Time
+	reactions []Reaction
+}
+
+type Message struct {
+	id        string
+	from      Contact
 	body      string
 	provider  string
 	timestamp time.Time

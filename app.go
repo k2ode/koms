@@ -11,7 +11,7 @@ const RUNE_RIGHT  = 'l'
 const RUNE_TOP    = 'g'
 const RUNE_BOTTOM = 'G'
 
-func AddBindings(list *tview.List, handleHover func(int)) {
+func AddBindings(list *tview.List, handleHover func(int), handleLeft func(int), handleRight func(int)) {
 	list.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		endPosition := list.GetItemCount() - 1
 		position := list.GetCurrentItem()
@@ -28,11 +28,11 @@ func AddBindings(list *tview.List, handleHover func(int)) {
 				return i - 1
 			}
 		case event.Rune() == RUNE_RIGHT:
-			// rightFn(position)
+			handleRight(position)
 			return nil
 		
 		case event.Rune() == RUNE_LEFT:
-			// leftFn(position)
+			handleLeft(position)
 			return nil
 		
 		case event.Rune() == RUNE_TOP:
@@ -53,19 +53,21 @@ func AddBindings(list *tview.List, handleHover func(int)) {
 	})
 }
 
-func UIListConversations(client Client, messagePreview func(int)) *tview.List {
+func UIListConversations(client Client, messagePreview func(int), exit func(int), focusMessage func(int)) *tview.List {
 	listConversations := tview.NewList()
 
 	AddBindings(
 		listConversations,
 		messagePreview,
+		exit,
+		focusMessage,
 	)
 
 	return listConversations
 }
 	
 func UIListMessages() *tview.List {
-	listMessages := tview.NewList()
+	listMessages := tview.NewList().SetSelectedFocusOnly(true)
 
 	return listMessages
 }
@@ -82,18 +84,19 @@ func run() {
 	client, err := GetClient()
 	if err != nil { panic(err) }
 
-	var conversations []PersonOrGroupChat
+	var conversations []Conversation
 
 	listMessages := UIListMessages()
 
-	updateMessages := func (messages []Message) {
+	updateMessages := func (messages []MessageRaw) {
 		listMessages.Clear()
 		for _, message := range messages {
-			listMessages.AddItem(message.body, "", 0, nil)
+			msg := ParseMessage(client, message)
+			listMessages.AddItem(msg, "", 0, nil)
 		}
 	}
 
-	listConversations := UIListConversations(client, func(newPos int) {
+	messagePreview := func(newPos int) {
 
 		conversation := conversations[newPos]
 
@@ -102,11 +105,21 @@ func run() {
 		if err != nil { panic(err) }
 
 
-
 		updateMessages(messages)
 
+	}
 
-	})
+
+	exit := func(_ int) {
+		app.Stop()	
+	}
+
+	messageFocus := func(_ int) {
+
+	}
+
+
+	listConversations := UIListConversations(client, messagePreview, exit, messageFocus)
 
 	updateConversations := func () {
 		conversations, err = client.GetConversations()

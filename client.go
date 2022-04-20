@@ -11,13 +11,13 @@ type Client interface {
 
 	GetProvider(id string) (Provider, error)
 	
-	GetConversations() ([]PersonOrGroupChat, error)
+	GetConversations() ([]Conversation, error)
 
 	GetContact(id string) (Contact, error)
 
 	GetIdMap() (IdMap, error)
 
-	GetConversationMessages(conversation PersonOrGroupChat) ([]Message, error)
+	GetConversationMessages(conversation Conversation) ([]MessageRaw, error)
 }
 
 type client struct {
@@ -49,8 +49,8 @@ func (client *client) GetProvider(id string) (Provider, error) {
 	return nil, errors.New("invalid provider")
 }
 
-func (client *client) GetConversations() ([]PersonOrGroupChat, error) {
-	var all []Conversation
+func (client *client) GetConversations() ([]Conversation, error) {
+	var all []ConversationRaw
 
 	for _, provider := range client.GetProviders() {
 		providerConversations, err := provider.GetConversations()
@@ -59,12 +59,12 @@ func (client *client) GetConversations() ([]PersonOrGroupChat, error) {
 		all = append(all, providerConversations...)
 	}
 
-	var conversations []PersonOrGroupChat
+	var conversations []Conversation
 
 	if client.contacts == nil {
 		for _, conversation := range all {
-			personOrGroupChat := PersonOrGroupChat{
-				conversations: []Conversation{ conversation },
+			personOrGroupChat := Conversation{
+				conversations: []ConversationRaw{ conversation },
 				contactIds: conversation.participantIds,
 				isGroupChat: conversation.isGroupChat,
 				label: conversation.label,
@@ -76,7 +76,7 @@ func (client *client) GetConversations() ([]PersonOrGroupChat, error) {
 
 	// vvvvvvv    move all this to contacts      vvvvvv
 	idMap, err := client.GetIdMap()
-	if err != nil { return []PersonOrGroupChat{}, err }
+	if err != nil { return []Conversation{}, err }
 
 	matchId := func (id string) string {
 		match, exists := idMap[id]
@@ -96,8 +96,8 @@ func (client *client) GetConversations() ([]PersonOrGroupChat, error) {
 		}
 
 		if conversation.isGroupChat {
-			groupChat := PersonOrGroupChat{
-				conversations: []Conversation{ conversation },
+			groupChat := Conversation{
+				conversations: []ConversationRaw{ conversation },
 				contactIds: contactIds,
 				isGroupChat: true,
 				label: conversation.label,
@@ -115,8 +115,8 @@ func (client *client) GetConversations() ([]PersonOrGroupChat, error) {
 
 		if !exists {
 			contactConversations[contactId] = position
-			person := PersonOrGroupChat{
-				conversations: []Conversation{},
+			person := Conversation{
+				conversations: []ConversationRaw{},
 				contactIds: contactIds,
 				isGroupChat: false,
 			}
@@ -141,8 +141,8 @@ func (client *client) GetIdMap() (IdMap, error) {
 	return client.contacts.GetIdMap()
 }
 
-func (client *client) GetConversationMessages(conversation PersonOrGroupChat) ([]Message, error) {
-	var messages []Message
+func (client *client) GetConversationMessages(conversation Conversation) ([]MessageRaw, error) {
+	var messages []MessageRaw
 
 
 
