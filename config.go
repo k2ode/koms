@@ -38,8 +38,8 @@ func ParseConversation(client Client, conversation Conversation) string {
 	return result
 }
 
-func ParseMessage(client Client, message MessageRaw) string {
-	messagePrefix := message.from
-	if message.from == USER { messagePrefix = "[blue]" }
+func ParseMessage(client Client, message Message) string {
+	messagePrefix := message.from.name
+	if message.fromUser { messagePrefix = "[blue]" }
 	return messagePrefix + message.body
 }

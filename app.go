@@ -88,7 +88,7 @@ func run() {
 
 	listMessages := UIListMessages()
 
-	updateMessages := func (messages []MessageRaw) {
+	updateMessages := func (messages []Message) {
 		listMessages.Clear()
 		for _, message := range messages {
 			msg := ParseMessage(client, message)

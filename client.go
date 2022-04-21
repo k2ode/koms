@@ -17,12 +17,13 @@ type Client interface {
 
 	GetIdMap() (IdMap, error)
 
-	GetConversationMessages(conversation Conversation) ([]MessageRaw, error)
+	GetConversationMessages(conversation Conversation) ([]Message, error)
 }
 
 type client struct {
 	providers map[string]Provider
-	contacts    Contacts
+	contacts  Contacts
+	idMap     IdMap
 }
 
 func NewClient(providers []Provider, contacts Contacts) (Client, error) {
@@ -31,7 +32,14 @@ func NewClient(providers []Provider, contacts Contacts) (Client, error) {
 		providerMap[provider.GetId()] = provider
 	}
 
-	return &client{ providerMap, contacts }, nil
+	var idMap IdMap
+	if contacts != nil { 
+		var err error
+		idMap, err = contacts.GetIdMap()
+		if err != nil { return nil, err }
+	}
+
+	return &client{ providerMap, contacts, idMap }, nil
 }
 
 func (client *client) GetProviders() []Provider {
@@ -141,16 +149,32 @@ func (client *client) GetIdMap() (IdMap, error) {
 	return client.contacts.GetIdMap()
 }
 
-func (client *client) GetConversationMessages(conversation Conversation) ([]MessageRaw, error) {
-	var messages []MessageRaw
+func (client *client) GetConversationMessages(conversation Conversation) ([]Message, error) {
+	var messages []Message
 
 
 
 	for _, convo := range conversation.conversations {
 		provider, exists := client.providers[convo.provider]
 		if !exists { return messages, errors.New("invalid provider") }
-		conversationMessages, err := provider.GetConversationMessages(convo.id)
+		messagesRaw, err := provider.GetConversationMessages(convo.id)
 		if err != nil { panic(err) }
+
+
+		var conversationMessages []Message
+
+		for _, messageRaw := range messagesRaw {
+			conversationMessages = append(conversationMessages, Message{
+				id: messageRaw.id,
+				from: Contact{},
+				body: messageRaw.body,
+				provider: provider.GetId(),
+				timestamp: messageRaw.timestamp,
+				reactions: messageRaw.reactions,
+			})
+		}
+
+
 		messages = append(messages, conversationMessages...)
 	}
 

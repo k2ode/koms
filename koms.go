@@ -28,6 +28,7 @@ type MessageRaw struct {
 type Message struct {
 	id        string
 	from      Contact
+	fromUser  bool
 	body      string
 	provider  string
 	timestamp time.Time
