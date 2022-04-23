@@ -26,7 +26,7 @@ func MakeInput(state AppState, handleEscape func(string), handleEnter func(strin
 	doneFunc := func(key tcell.Key) {
 		text := input.GetText()
 		if key == tcell.KeyEscape { handleEscape(text) }
-		if key == tcell.KeyEnter { handleEnter(text) }
+		if key == tcell.KeyEnter { input.SetText(""); handleEnter(text) }
 	}
 
 	input.SetText(conversationDraft).
@@ -42,7 +42,7 @@ type AppState struct {
 	conversationPos int
 	messagePos      int
 }
-// , handleKeyDown func(e *tcell.EventKey) *tcell.EventKey
+
 func MakeMessages(state AppState) *tview.List {
 	list := tview.NewList()
 
@@ -84,10 +84,17 @@ func render(app *tview.Application, state AppState, client Client) {
 
 	messages := MakeMessages(state)
 
+	setDraft := func(draft string) { state.drafts[state.conversationPos] = draft }
 
-	handleEnter := func(s string) {}
-	handleEscape := func(s string) {
-		state.drafts[state.conversationPos] = s
+	handleEnter := func(message string) {
+		setDraft("")
+
+		
+
+	}
+
+	handleEscape := func(draft string) {
+		setDraft(draft)
 		app.SetFocus(messages)
 	}
 
