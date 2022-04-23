@@ -18,10 +18,19 @@ func MakeContainer() *tview.Grid {
 	return container
 }
 
-func MakeInput(state AppState) *tview.InputField {
+func MakeInput(state AppState, handleEscape func(string), handleEnter func(string)) *tview.InputField {
 	conversationDraft := state.drafts[state.conversationPos]
-	input := tview.NewInputField().
-		SetText(conversationDraft)
+
+	input := tview.NewInputField()
+
+	doneFunc := func(key tcell.Key) {
+		text := input.GetText()
+		if key == tcell.KeyEscape { handleEscape(text) }
+		if key == tcell.KeyEnter { handleEnter(text) }
+	}
+
+	input.SetText(conversationDraft).
+		SetDoneFunc(doneFunc)
 
 	return input
 }
@@ -33,10 +42,9 @@ type AppState struct {
 	conversationPos int
 	messagePos      int
 }
-
-func MakeMessages(state AppState, handleKeyDown func(e *tcell.EventKey) *tcell.EventKey) *tview.List {
+// , handleKeyDown func(e *tcell.EventKey) *tcell.EventKey
+func MakeMessages(state AppState) *tview.List {
 	list := tview.NewList()
-	list.SetInputCapture(handleKeyDown)
 
 	messages, exists := state.messages[state.conversationPos]
 	if !exists { list.AddItem("NO MESSAGES IN STATE", "", 0, nil); return list }
@@ -71,7 +79,19 @@ func render(app *tview.Application, state AppState, client Client) {
 		render(app, s, client)
 	}
 
-	input := MakeInput(state)
+
+
+
+	messages := MakeMessages(state)
+
+
+	handleEnter := func(s string) {}
+	handleEscape := func(s string) {
+		state.drafts[state.conversationPos] = s
+		app.SetFocus(messages)
+	}
+
+	input := MakeInput(state, handleEscape, handleEnter)
 	container.AddItem(
 		input,
 		ROW_POS_INPUT,
@@ -82,9 +102,7 @@ func render(app *tview.Application, state AppState, client Client) {
 		WIDTH_MIN_INPUT,
 		false,
 	)
-
-
-
+	
 	handleKeyDown := func(event *tcell.EventKey) *tcell.EventKey {
 
 		newState := state
@@ -105,13 +123,15 @@ func render(app *tview.Application, state AppState, client Client) {
 		if event.Rune() == BIND_KEY_UP { newState.messagePos = descY(state.messagePos) }
 		if event.Rune() == BIND_KEY_LEFT { newState.conversationPos = descX(state.conversationPos) }
 		if event.Rune() == BIND_KEY_RIGHT { newState.conversationPos = incX(state.conversationPos) }
+		if event.Rune() == BIND_KEY_CHAT { app.SetFocus(input) }
 
-		updateState(newState)
+		posChange := state.messagePos != newState.messagePos || state.conversationPos != newState.conversationPos
+		if posChange { updateState(newState) }
 
 		return nil
 	}
+	messages.SetInputCapture(handleKeyDown)
 
-	messages := MakeMessages(state, handleKeyDown)
 	focusMessages := true
 	container.AddItem(
 		messages,

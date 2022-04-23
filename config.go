@@ -10,6 +10,7 @@ const BIND_KEY_UP     = 'k'
 const BIND_KEY_RIGHT  = 'l'
 const BIND_KEY_TOP    = 'g'
 const BIND_KEY_BOTTOM = 'G'
+const BIND_KEY_CHAT   = '/'
 
 // 0 is treated as auto
 const ROWS_CONTENT = 0
