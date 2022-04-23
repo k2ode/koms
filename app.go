@@ -4,79 +4,144 @@ import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
-const RUNE_LEFT   = 'h'
-const RUNE_DOWN   = 'j'
-const RUNE_UP     = 'k'
-const RUNE_RIGHT  = 'l'
-const RUNE_TOP    = 'g'
-const RUNE_BOTTOM = 'G'
 
-func AddBindings(list *tview.List, handleHover func(int), handleLeft func(int), handleRight func(int)) {
-	list.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		endPosition := list.GetItemCount() - 1
-		position := list.GetCurrentItem()
-		var fn func(i int) int
-		switch {
-		case event.Rune() == RUNE_DOWN:
-			fn = func(i int) int {
-				if i == endPosition { return 0 }
-				return i + 1
-			}
-		case event.Rune() == RUNE_UP:
-			fn = func(i int) int {
-				if i == 0 { return endPosition }
-				return i - 1
-			}
-		case event.Rune() == RUNE_RIGHT:
-			handleRight(position)
-			return nil
-		
-		case event.Rune() == RUNE_LEFT:
-			handleLeft(position)
-			return nil
-		
-		case event.Rune() == RUNE_TOP:
-			fn = func (_ int) int { return 0 }
-		
-		case event.Rune() == RUNE_BOTTOM:
-			fn = func (_ int) int { return endPosition }
 
-		default:
-			return nil
-		}
-		
-		newPos := fn(position)
-		list.SetCurrentItem(newPos)
-		handleHover(newPos)
-		
-		return event
-	})
+func MakeContainer() *tview.Grid {
+	containerRows := []int{ROWS_CONTENT, ROWS_INPUT}
+	containerColumns := []int{COLUMNS_CONVERSATIONS, COLUMNS_MESSAGES, COLUMNS_PREVIEW}
+
+	container := tview.NewGrid().
+		SetRows(containerRows...).
+		SetColumns(containerColumns...).
+		SetBorders(true)
+
+	return container
 }
 
-func UIListConversations(client Client, messagePreview func(int), exit func(int), focusMessage func(int)) *tview.List {
-	listConversations := tview.NewList()
-
-	AddBindings(
-		listConversations,
-		messagePreview,
-		exit,
-		focusMessage,
-	)
-
-	return listConversations
-}
-	
-func UIListMessages() *tview.List {
-	listMessages := tview.NewList().SetSelectedFocusOnly(true)
-
-	return listMessages
-}
-
-func UIInput() *tview.InputField {
-	input := tview.NewInputField()
+func MakeInput(state AppState) *tview.InputField {
+	conversationDraft := state.drafts[state.conversationPos]
+	input := tview.NewInputField().
+		SetText(conversationDraft)
 
 	return input
 }
+
+type AppState struct {
+	conversations   []Conversation
+	messages        map[int][]Message
+	drafts          map[int]string
+	conversationPos int
+	messagePos      int
+}
+
+func MakeMessages(state AppState, handleKeyDown func(e *tcell.EventKey) *tcell.EventKey) *tview.List {
+	list := tview.NewList()
+	list.SetInputCapture(handleKeyDown)
+
+	messages, exists := state.messages[state.conversationPos]
+	if !exists { list.AddItem("NO MESSAGES IN STATE", "", 0, nil); return list }
+
+	for _, message := range messages {
+		list.AddItem(message.body, "", 0, nil)
+	}
+
+	list.SetCurrentItem(state.messagePos)
+
+
+	return list
+}
+
+func MakeConversations(state AppState, client Client) *tview.List {
+	list := tview.NewList()
+
+	for _, convo := range state.conversations {
+		label := ParseConversation(client, convo)
+		list.AddItem(label, "", 0, nil)
+	}
+
+	list.SetCurrentItem(state.conversationPos)
+
+	return list
+}
+
+func render(app *tview.Application, state AppState, client Client) {
+	container := MakeContainer()
+
+	updateState := func(s AppState) {
+		render(app, s, client)
+	}
+
+	input := MakeInput(state)
+	container.AddItem(
+		input,
+		ROW_POS_INPUT,
+		COLUMN_POS_INPUT,
+		ROW_SPAN_INPUT,
+		COLUMN_SPAN_INPUT,
+		HEIGHT_MIN_INPUT,
+		WIDTH_MIN_INPUT,
+		false,
+	)
+
+
+
+	handleKeyDown := func(event *tcell.EventKey) *tcell.EventKey {
+
+		newState := state
+
+		lenX := len(state.conversations) - 1 
+		lenY := len(state.messages[state.conversationPos]) - 1 
+
+		incX := MakeInc(lenX)
+		descX := MakeDesc(lenX)
+
+		incY := MakeInc(lenY)
+		descY := MakeDesc(lenY)
+
+
+		if event.Rune() == BIND_KEY_TOP { newState.messagePos = 0 }
+		if event.Rune() == BIND_KEY_BOTTOM { newState.messagePos = lenY }
+		if event.Rune() == BIND_KEY_DOWN { newState.messagePos = incY(state.messagePos) }
+		if event.Rune() == BIND_KEY_UP { newState.messagePos = descY(state.messagePos) }
+		if event.Rune() == BIND_KEY_LEFT { newState.conversationPos = descX(state.conversationPos) }
+		if event.Rune() == BIND_KEY_RIGHT { newState.conversationPos = incX(state.conversationPos) }
+
+		updateState(newState)
+
+		return nil
+	}
+
+	messages := MakeMessages(state, handleKeyDown)
+	focusMessages := true
+	container.AddItem(
+		messages,
+		ROW_POS_MSGS,
+		COLUMN_POS_MSGS,
+		ROW_SPAN_MSGS,
+		COLUMN_SPAN_MSGS,
+		HEIGHT_MIN_MSGS,
+		WIDTH_MIN_MSGS,
+		focusMessages,
+	)
+
+	conversations := MakeConversations(state, client)
+	container.AddItem(
+		conversations,
+		ROW_POS_CONVOS,
+		COLUMN_POS_CONVOS,
+		ROW_SPAN_CONVOS,
+		COLUMN_SPAN_CONVOS,
+		HEIGHT_MIN_CONVOS,
+		WIDTH_MIN_CONVOS,
+		false,
+	)
+
+
+
+
+	app.SetRoot(container, true)
+}
+
 
 func run() {
 	app := tview.NewApplication()
@@ -84,72 +149,25 @@ func run() {
 	client, err := GetClient()
 	if err != nil { panic(err) }
 
-	var conversations []Conversation
+	conversations, err := client.GetConversations()
+	if err != nil { panic(err) }
 
-	listMessages := UIListMessages()
-
-	updateMessages := func (messages []Message) {
-		listMessages.Clear()
-		for _, message := range messages {
-			msg := ParseMessage(client, message)
-			listMessages.AddItem(msg, "", 0, nil)
-		}
+	state := AppState{
+		conversations: conversations,
+		messages: make(map[int][]Message),
+		drafts: make(map[int]string),
+		conversationPos: 0,
+		messagePos: 0,
 	}
 
-	messagePreview := func(newPos int) {
+	msgs, _ := client.GetConversationMessages(conversations[0])
+	state.messages[0] = msgs
+	msgs1, _ := client.GetConversationMessages(conversations[1])
+	state.messages[1] = msgs1
 
-		conversation := conversations[newPos]
+	render(app, state, client)
 
-		messages, err := client.GetConversationMessages(conversation)
-
-		if err != nil { panic(err) }
-
-
-		updateMessages(messages)
-
-	}
-
-
-	exit := func(_ int) {
-		app.Stop()	
-	}
-
-	messageFocus := func(_ int) {
-
-	}
-
-
-	listConversations := UIListConversations(client, messagePreview, exit, messageFocus)
-
-	updateConversations := func () {
-		conversations, err = client.GetConversations()
-		if err != nil { panic(err) }
-
-		for _, conversation := range conversations {
-			labelConversation := ParseConversation(client, conversation)
-			listConversations.AddItem(labelConversation, "", 0, nil)
-		}
-	}
-
-	updateConversations()
-
-	input := UIInput()
-
-	gridConversation := tview.NewGrid().
-		SetRows(0, 1).
-		SetColumns(0).
-		SetBorders(true).
-		AddItem(listMessages, 0, 0, 1, 1, 0, 0, false).
-		AddItem(input, 1, 0, 1, 1, 0, 0, false)
-
-	gridContainer := tview.NewGrid().
-		SetRows(0).
-		SetColumns(30, 0).
-		SetBorders(true).
-		AddItem(listConversations, 0, 0, 1, 1, 0, 0, true).
-		AddItem(gridConversation, 0, 1, 1, 1, 0, 0, false)
-
-	if err := app.SetRoot(gridContainer, true).Run(); err != nil {
+	if err := app.Run(); err != nil {
 		panic(err)
 	}
 }

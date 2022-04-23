@@ -19,3 +19,19 @@ func TestUtilBetween(t *testing.T) {
 	assert.Equal(t, between, "foo")
 
 }
+
+func TestUtilMakeInc(t *testing.T) {
+	inc := MakeInc(5)
+
+	assert.Equal(t, inc(1), 2)
+	assert.Equal(t, inc(4), 5)
+	assert.Equal(t, inc(5), 0)
+}
+
+func TestUtilMakeDesc(t *testing.T) {
+	desc := MakeDesc(5)
+
+	assert.Equal(t, desc(5), 4)
+	assert.Equal(t, desc(1), 0)
+	assert.Equal(t, desc(0), 5)
+}
