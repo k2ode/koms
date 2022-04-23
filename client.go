@@ -18,6 +18,8 @@ type Client interface {
 	GetIdMap() (IdMap, error)
 
 	GetConversationMessages(conversation Conversation) ([]Message, error)
+
+	SendMessage(conversation Conversation, message string, providerIds []string) error
 }
 
 type client struct {
@@ -183,4 +185,20 @@ func (client *client) GetConversationMessages(conversation Conversation) ([]Mess
 	})
 
 	return messages, nil
+}
+
+func (client *client) SendMessage(conversation Conversation, message string, providerIds []string) error {
+	if message == "" { return errors.New("empty message") }
+
+	for _, providerId := range providerIds {
+		for _, convo := range conversation.conversations {
+			if convo.provider == providerId {
+				err := client.providers[providerId].SendMessage(convo.id, message)
+				if err != nil { return err }
+			}
+		}
+
+	}
+
+	return nil
 }

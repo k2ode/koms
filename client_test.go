@@ -108,3 +108,35 @@ func TestClientMockAGetProvider(t *testing.T) {
 	assert.Equal(t, provider.GetId(), "a")
 
 }
+
+
+func TestClientMockASendMessageEmpty(t *testing.T) {
+	providerA, _ := NewProviderMockA()
+	client, _ := NewClient([]Provider{providerA}, nil)
+
+	conversations, _ := client.GetConversations()
+
+	firstConversation := conversations[0]
+
+	err := client.SendMessage(firstConversation, "", []string{"a"})
+	assert.Error(t, err)
+}
+
+func TestClientMockASendMessage(t *testing.T) {
+	providerA, _ := NewProviderMockA()
+	client, _ := NewClient([]Provider{providerA}, nil)
+
+	conversations, _ := client.GetConversations()
+
+	firstConversation := conversations[0]
+
+	err := client.SendMessage(firstConversation, "hello world", []string{"a"})
+
+	assert.NoError(t, err)
+
+	messages, err := client.GetConversationMessages(firstConversation)
+	assert.NoError(t, err)
+
+	assert.Equal(t, len(messages), 3)
+
+}

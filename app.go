@@ -43,20 +43,24 @@ type AppState struct {
 	messagePos      int
 }
 
-func MakeMessages(state AppState) *tview.List {
+func MakeMessages(state AppState) (*tview.List, func(s AppState)) {
 	list := tview.NewList()
 
-	messages, exists := state.messages[state.conversationPos]
-	if !exists { list.AddItem("NO MESSAGES IN STATE", "", 0, nil); return list }
+	updateMessages := func(s AppState) {
+		messages, exists := s.messages[s.conversationPos]
+		if !exists { return }
 
-	for _, message := range messages {
-		list.AddItem(message.body, "", 0, nil)
+		list.Clear()
+
+		for _, message := range messages {
+			list.AddItem(message.body, "", 0, nil)
+		}
+		list.SetCurrentItem(state.messagePos)
 	}
 
-	list.SetCurrentItem(state.messagePos)
+	updateMessages(state)
 
-
-	return list
+	return list, updateMessages
 }
 
 func MakeConversations(state AppState, client Client) *tview.List {
@@ -82,15 +86,22 @@ func render(app *tview.Application, state AppState, client Client) {
 
 
 
-	messages := MakeMessages(state)
+	messages, updateMessages := MakeMessages(state)
 
 	setDraft := func(draft string) { state.drafts[state.conversationPos] = draft }
 
 	handleEnter := func(message string) {
 		setDraft("")
 
-		
+		client.SendMessage(state.conversations[state.conversationPos], message, []string{"a"})
 
+		newState := state
+
+		newMsgs, _ := client.GetConversationMessages(state.conversations[state.conversationPos])
+	
+		newState.messages[state.conversationPos] = newMsgs
+
+		updateMessages(newState)
 	}
 
 	handleEscape := func(draft string) {
