@@ -38,6 +38,7 @@ const COLUMN_SPAN_MSGS = 1
 const HEIGHT_MIN_MSGS = 0
 const WIDTH_MIN_MSGS = 0
 
+
 const ROW_POS_CONVOS = 0
 const COLUMN_POS_CONVOS = 0
 
@@ -46,6 +47,16 @@ const COLUMN_SPAN_CONVOS = 1
 
 const HEIGHT_MIN_CONVOS = 0
 const WIDTH_MIN_CONVOS = 0
+
+
+const ROW_POS_PREVIEW = 0
+const COLUMN_POS_PREVIEW = 2
+
+const ROW_SPAN_PREVIEW = 1
+const COLUMN_SPAN_PREVIEW = 1
+
+const HEIGHT_MIN_PREVIEW = 0
+const WIDTH_MIN_PREVIEW = 0
 
 
 func GetClient() (Client, error) {
@@ -86,4 +97,8 @@ func ParseMessage(client Client, message Message) string {
 	messagePrefix := message.from.name
 	if message.fromUser { messagePrefix = "[blue]" }
 	return messagePrefix + message.body
+}
+
+func GetMessagePreview(message Message) string {
+	return message.body
 }
