@@ -18,14 +18,16 @@ func MakeMessagesUpdateFn(client Client, messages MessagesComponent) UpdateState
 	return func(state AppState) {
 		messages.Clear()
 
-		conversationMessages, exists := state.messages[state.conversationPos]
+		conversationMessages, exists := GetCacheMessages(state)
 		if !exists { return }
 
 		for _, message := range conversationMessages {
 			parsedMessage := ParseMessage(client, message)
 			messages.AddItem(parsedMessage, "", 0, nil)
 		}
-		messages.SetCurrentItem(state.messagePos)
+
+		messagePos := GetStateMessagePos(state)
+		messages.SetCurrentItem(messagePos)
 	}
 }
 

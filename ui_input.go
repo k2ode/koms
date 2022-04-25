@@ -5,19 +5,21 @@ import (
 	"github.com/rivo/tview"
 )
 
-func MakeInput(state AppState, handleEscape func(string), handleEnter func(string)) (*tview.InputField, func(AppState)) {
+type InputComponent = *tview.InputField
+
+func MakeInput(state AppState, handleEscape func(string), handleEnter func(string)) (InputComponent, UpdateStateFn) {
 	input := tview.NewInputField()
 
-	doneFunc := MakeInputDoneFunc(input, handleEscape, handleEnter)
+	doneFunc := MakeInputDoneFn(input, handleEscape, handleEnter)
 	input.SetDoneFunc(doneFunc)
 
-	updateInput := MakeInputUpdateFunc(input)
+	updateInput := MakeInputUpdateFn(input)
 	updateInput(state)
 
 	return input, updateInput
 }
 
-func MakeInputDoneFunc(input *tview.InputField, handleEscape func(string), handleEnter func(string)) func(tcell.Key) {
+func MakeInputDoneFn(input *tview.InputField, handleEscape func(string), handleEnter func(string)) func(tcell.Key) {
 	return func(key tcell.Key) {
 		text := input.GetText()
 		if key == tcell.KeyEscape { handleEscape(text) }
@@ -25,14 +27,14 @@ func MakeInputDoneFunc(input *tview.InputField, handleEscape func(string), handl
 	}
 }
 
-func MakeInputUpdateFunc(input *tview.InputField) func(AppState) {
+func MakeInputUpdateFn(input *tview.InputField) UpdateStateFn {
 	return func(state AppState) {
-		draft := state.drafts[state.conversationPos]
+		draft := GetStateDraft(state)
 		input.SetText(draft)
 	}
 }
 
-func AddContainerInput(container *tview.Grid, input *tview.InputField) {
+func AddContainerInput(container *tview.Grid, input InputComponent) {
 	container.AddItem(
 		input,
 		ROW_POS_INPUT,

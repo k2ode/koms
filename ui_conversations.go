@@ -16,11 +16,12 @@ func MakeConversations(client Client, state AppState) (ConversationsComponent, U
 
 func MakeConversationsUpdateFn(client Client, conversations ConversationsComponent) UpdateStateFn {
 	return func(state AppState) {
-		for _, conversation := range state.conversations {
+		conversations.Clear()
+		for _, conversation := range state.cache.conversations {
 			label := ParseConversation(client, conversation)
 			conversations.AddItem(label, "", 0, nil)
 		}
-		conversations.SetCurrentItem(state.conversationPos)
+		conversations.SetCurrentItem(state.pos)
 	}
 }
 
