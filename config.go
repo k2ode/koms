@@ -96,7 +96,7 @@ func ParseConversation(client Client, conversation Conversation) string {
 func ParseMessage(client Client, message Message) string {
 	messagePrefix := message.from.name
 	if message.fromUser { messagePrefix = "[blue]" }
-	return messagePrefix + message.body
+	return messagePrefix + message.provider + ": " + message.body
 }
 
 func GetMessagePreview(message Message) string {

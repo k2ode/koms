@@ -18,10 +18,6 @@ func run() {
 	state := MakeInitialState()
 
 
-	onInputEnter := func(string) {
-
-	}
-
 
 	conversations, conversationsUpdate := MakeConversations(client, state)
 	messages,      messagesUpdate      := MakeMessages(client, state)
@@ -29,6 +25,27 @@ func run() {
 
 	container                          := MakeContainer(conversations, messages, input)
 
+	update := func(newState AppState) {
+		conversationsUpdate(newState)
+		messagesUpdate(newState)
+		
+		if newState.focusInput { app.SetFocus(input) } else
+		{ inputUpdate(newState) }
+	}
+
+	onLoad := func() {
+		convos, err := client.GetConversations()
+		if err != nil { panic(err) }
+
+		state.cache.conversations = convos
+
+		msgs, _ := client.GetConversationMessages(convos[0])
+		state.cache.messages[0] = msgs
+		msgs1, _ := client.GetConversationMessages(convos[1])
+		state.cache.messages[1] = msgs1
+
+		update(state)
+	}
 
 	onInputEscape := func(draft string) {
 		state.focusInput = false
@@ -37,40 +54,35 @@ func run() {
 
 		state = UpdateStateDraft(state, draft)
 	}
+
+	onInputEnter := func(message string) {
+		if message == "" { return }
+
+		convo := GetCacheConversation(state)
+		// convoState := GetStateConversation(state)
+		providerIds := []string{ "a" }
+		err := client.SendMessage(convo, message, providerIds)
+		if err != nil { panic(err) }
+
+		msgs, _ := GetCacheMessages(state)
+		newMsgPos := len(msgs)
+		state = UpdateStateMessagePos(state, newMsgPos)
+
+		onLoad()
+	}
+
 	onDone := MakeInputDoneFn(input, onInputEscape, onInputEnter)
 	input.SetDoneFunc(onDone)
 
 	
 	onKeyDown := func(event *tcell.EventKey) *tcell.EventKey {
 		newState := UpdateStateFromKeyBind(state, event.Rune())
-
-		conversationsUpdate(newState)
-		messagesUpdate(newState)
-		
-		if newState.focusInput { app.SetFocus(input) } else
-		{ inputUpdate(state) }
-
+		update(newState)
 		state = newState
-
 		return nil
 	}
 	messages.SetInputCapture(onKeyDown)
 
-	onLoad := func() {
-		convos, err := client.GetConversations()
-		if err != nil { panic(err) }
-
-		state.cache.conversations = convos
-
-		conversationsUpdate(state)
-
-		msgs, _ := client.GetConversationMessages(convos[0])
-		state.cache.messages[0] = msgs
-		msgs1, _ := client.GetConversationMessages(convos[1])
-		state.cache.messages[1] = msgs1
-
-		messagesUpdate(state)
-	}
 
 	app.SetRoot(container, true)
 
