@@ -12,16 +12,24 @@ func Between(str string, start string, end string) string {
 
 type IntMod = func(int) int
 
-func MakeInc(max int) IntMod {
+func MakeIncBy(max int, by int) IntMod {
 	return func(i int) int {
 		if i == max { return 0 }
-		return i + 1
+		return i + by
+	}
+}
+
+func MakeInc(max int) IntMod {
+	return MakeIncBy(max, 1)
+}
+
+func MakeDescBy(max int, by int) IntMod {
+	return func(i int) int {
+		if i == 0 { return max }
+		return i - by
 	}
 }
 
 func MakeDesc(max int) IntMod {
-	return func(i int) int {
-		if i == 0 { return max }
-		return i - 1
-	}
+	return MakeDescBy(max, 1)
 }

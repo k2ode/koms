@@ -5,6 +5,7 @@ type AppState struct {
 	conversations map[int]ConversationState
 	pos           int
 	focusInput    bool
+	jumpBy        int
 }
 
 type ConversationState struct {
@@ -26,6 +27,7 @@ func MakeEmptyState() AppState {
 		},
 		conversations: make(map[int]ConversationState),
 		pos: 0,
+		jumpBy: 1,
 	}
 }
 

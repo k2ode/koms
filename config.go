@@ -2,6 +2,7 @@ package main
 
 import (
 	"strings"
+	"unicode"
 )
 
 const BIND_KEY_LEFT   = 'h'
@@ -94,9 +95,7 @@ func ParseConversation(client Client, conversation Conversation) string {
 }
 
 func ParseMessage(client Client, message Message) string {
-	messagePrefix := message.from.name
-	if message.fromUser { messagePrefix = "[blue]" }
-	return messagePrefix + message.provider + ": " + message.body
+	return message.provider + ": " + message.body
 }
 
 func GetMessagePreview(message Message) string {
@@ -106,7 +105,6 @@ func GetMessagePreview(message Message) string {
 func UpdateStateFromKeyBind(state AppState, key rune) AppState {
 	switch {
 		case key == BIND_KEY_TOP || key == BIND_KEY_BOTTOM:
-			// conversation := GetStateConversation(state)
 			var messagePos int
 
 			if key == BIND_KEY_BOTTOM {
@@ -134,15 +132,21 @@ func UpdateStateFromKeyBind(state AppState, key rune) AppState {
 			if !exists { return state }
 			maxMsgs := len(msgs) - 1
 
+			jumpBy := state.jumpBy
+			state.jumpBy = 1
+
 			var fn func(int) int
-			if key == BIND_KEY_DOWN { fn = MakeInc(maxMsgs) } else
-			{ fn = MakeDesc(maxMsgs) }
+			if key == BIND_KEY_DOWN { fn = MakeIncBy(maxMsgs, jumpBy ) } else
+			{ fn = MakeDescBy(maxMsgs, jumpBy) }
 
 			state = UpdateStateMessagePosFn(state, fn)
 
 			break
 		case key == BIND_KEY_CHAT:
 			state.focusInput = true
+			break
+		case unicode.IsDigit(key):
+			state.jumpBy = int(key - '0') 
 			break
 	}
 	return state
