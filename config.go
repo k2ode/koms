@@ -105,6 +105,20 @@ func GetMessagePreview(message Message) string {
 
 func UpdateStateFromKeyBind(state AppState, key rune) AppState {
 	switch {
+		case key == BIND_KEY_TOP || key == BIND_KEY_BOTTOM:
+			// conversation := GetStateConversation(state)
+			var messagePos int
+
+			if key == BIND_KEY_BOTTOM {
+				msgs, exists := GetCacheMessages(state)
+				if !exists { return state }
+				maxMsgs := len(msgs) - 1
+				messagePos = maxMsgs 
+			}
+
+			state = UpdateStateMessagePos(state, messagePos)
+
+			break
 		case key == BIND_KEY_LEFT || key == BIND_KEY_RIGHT:
 			maxConvos := len(state.cache.conversations) - 1
 
@@ -112,10 +126,9 @@ func UpdateStateFromKeyBind(state AppState, key rune) AppState {
 			if key == BIND_KEY_RIGHT { fn = MakeInc(maxConvos) } else
 			{ fn = MakeDesc(maxConvos) }
 
-			state.pos = fn(state.pos)
+			state.pos = fn(state.pos) 
 
 			break
-
 		case key == BIND_KEY_UP || key == BIND_KEY_DOWN:
 			msgs, exists := GetCacheMessages(state) 
 			if !exists { return state }
@@ -125,12 +138,12 @@ func UpdateStateFromKeyBind(state AppState, key rune) AppState {
 			if key == BIND_KEY_DOWN { fn = MakeInc(maxMsgs) } else
 			{ fn = MakeDesc(maxMsgs) }
 
-			conversation := GetStateConversation(state)
-			conversation.messagePos = fn(conversation.messagePos)
-			state.conversations[state.pos] = conversation
+			state = UpdateStateMessagePosFn(state, fn)
+
 			break
-		// case key == BIND_KEY_CHAT:
-		// 	state.focusInput = true
+		case key == BIND_KEY_CHAT:
+			state.focusInput = true
+			break
 	}
 	return state
 }

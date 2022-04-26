@@ -4,6 +4,7 @@ type AppState struct {
 	cache         AppCache
 	conversations map[int]ConversationState
 	pos           int
+	focusInput    bool
 }
 
 type ConversationState struct {
@@ -51,4 +52,31 @@ func GetStateDraft(state AppState) string {
 
 func GetStateProvider(state AppState) string {
 	return state.conversations[state.pos].provider
+}
+
+func UpdateStateConversationState(state AppState, fn func(ConversationState) ConversationState) AppState {
+	conversation := GetStateConversation(state)
+	state.conversations[state.pos] = fn(conversation)
+	return state
+}
+
+func UpdateStateDraft(state AppState, draft string) AppState {
+	return UpdateStateConversationState(state, func(convo ConversationState) ConversationState {
+		convo.draft = draft
+		return convo
+	})
+}
+
+func UpdateStateMessagePos(state AppState, pos int) AppState {
+	return UpdateStateConversationState(state, func(convo ConversationState) ConversationState {
+		convo.messagePos = pos
+		return convo
+	})
+}
+
+func UpdateStateMessagePosFn(state AppState, fn func(int) int) AppState {
+	return UpdateStateConversationState(state, func(convo ConversationState) ConversationState {
+		convo.messagePos = fn(convo.messagePos)
+		return convo
+	})
 }

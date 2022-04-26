@@ -7,11 +7,8 @@ import (
 
 type InputComponent = *tview.InputField
 
-func MakeInput(state AppState, handleEscape func(string), handleEnter func(string)) (InputComponent, UpdateStateFn) {
+func MakeInput(state AppState) (InputComponent, UpdateStateFn) {
 	input := tview.NewInputField()
-
-	doneFunc := MakeInputDoneFn(input, handleEscape, handleEnter)
-	input.SetDoneFunc(doneFunc)
 
 	updateInput := MakeInputUpdateFn(input)
 	updateInput(state)

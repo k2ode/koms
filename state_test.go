@@ -15,12 +15,18 @@ func TestStateMakeEmptyState(t *testing.T) {
 
 func MakeMockState() AppState {
 	state := MakeEmptyState()
-	convo := Conversation{
-		conversations: []ConversationRaw{
-			{ id: "6", participantIds: []string{"0"}, isGroupChat: false, label: "", provider: "a" },
-		},
+
+	MockConvo := func(id string) Conversation {
+		return Conversation{
+			conversations: []ConversationRaw{
+				{ id: id, participantIds: []string{"0"}, isGroupChat: false, label: "", provider: "a" },
+			},
+		}
 	}
-	state.cache.conversations = append(state.cache.conversations, convo)
+
+	convo1 := MockConvo("6")
+	convo2 := MockConvo("1")
+	state.cache.conversations = append(state.cache.conversations, convo1, convo2)
 	state.cache.messages[0] = []Message{
 		{ id: "9" },
 	}
@@ -78,4 +84,29 @@ func TestStateGetStateProvider(t *testing.T) {
 
 	provider := GetStateProvider(state)
 	assert.Equal(t, provider , "a")
+}
+
+func TestStateUpdateStateDraft(t *testing.T) {
+	state := MakeMockState()
+
+	newState := UpdateStateDraft(state, "thinking")
+
+	assert.Equal(t, newState.conversations[newState.pos].draft, "thinking")
+}
+
+func TestStateUpdateStateMessagePos(t *testing.T) {
+	state := MakeMockState()
+
+	newState := UpdateStateMessagePos(state, 0)
+
+	assert.Equal(t, newState.conversations[newState.pos].messagePos, 0)
+}
+
+
+func TestStateUpdateStateMessagePosFn(t *testing.T) {
+	state := MakeMockState()
+
+	newState := UpdateStateMessagePosFn(state, func(i int) int { return i - 1 })
+
+	assert.Equal(t, newState.conversations[newState.pos].messagePos, 1)
 }
