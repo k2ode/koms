@@ -16,7 +16,9 @@ func MakePreview(state AppState) (PreviewComponent, UpdateStateFn) {
 
 func MakePreviewUpdateFunc(preview PreviewComponent) UpdateStateFn {
 	return func(state AppState) {
-		message := state.cache.messages[state.pos][state.conversations[state.pos].messagePos]
+		msgs, exists := state.cache.messages[state.pos]
+		if !exists { preview.SetText(""); return }
+		message := msgs[state.conversations[state.pos].messagePos]
 		previewText := GetMessagePreview(message)
 		preview.SetText(previewText)
 	}

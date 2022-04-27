@@ -3,7 +3,11 @@ package main
 import (
 	"strings"
 	"unicode"
+
+	"github.com/gdamore/tcell/v2"
 )
+
+// Bindings
 
 const BIND_KEY_LEFT   = 'h'
 const BIND_KEY_DOWN   = 'j'
@@ -12,6 +16,17 @@ const BIND_KEY_RIGHT  = 'l'
 const BIND_KEY_TOP    = 'g'
 const BIND_KEY_BOTTOM = 'G'
 const BIND_KEY_CHAT   = '/'
+
+
+// Colors
+
+const MESSAGE_FOCUS_BACKGROUND_NORMAL = tcell.ColorWhite
+const MESSAGE_FOCUS_BACKGROUND_INSERT = tcell.ColorGray
+
+const MESSAGE_FOCUS_FOREGROUND_NORMAL = tcell.ColorDefault
+const MESSAGE_FOCUS_FOREGROUND_INSERT = tcell.ColorWhite
+
+// Layout
 
 // 0 is treated as auto
 const ROWS_CONTENT = 0

@@ -9,6 +9,7 @@ type InputComponent = *tview.InputField
 
 func MakeInput(state AppState) (InputComponent, UpdateStateFn) {
 	input := tview.NewInputField()
+	input.SetFieldBackgroundColor(0x000000)
 
 	updateInput := MakeInputUpdateFn(input)
 	updateInput(state)
