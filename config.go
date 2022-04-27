@@ -151,7 +151,7 @@ func UpdateStateFromKeyBind(state AppState, key rune) AppState {
 			state.jumpBy = 1
 
 			var fn func(int) int
-			if key == BIND_KEY_DOWN { fn = MakeIncBy(maxMsgs, jumpBy ) } else
+			if key == BIND_KEY_DOWN { fn = MakeIncBy(maxMsgs, jumpBy	) } else
 			{ fn = MakeDescBy(maxMsgs, jumpBy) }
 
 			state = UpdateStateMessagePosFn(state, fn)
