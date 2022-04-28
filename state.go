@@ -6,6 +6,7 @@ type AppState struct {
 	pos           int
 	focusInput    bool
 	jumpBy        int
+	quit          bool
 }
 
 type ConversationState struct {

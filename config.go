@@ -15,6 +15,7 @@ const BIND_KEY_UP     = 'k'
 const BIND_KEY_RIGHT  = 'l'
 const BIND_KEY_TOP    = 'g'
 const BIND_KEY_BOTTOM = 'G'
+const BIND_KEY_QUIT   = 'q'
 const BIND_KEY_CHAT   = '/'
 
 
@@ -159,6 +160,9 @@ func UpdateStateFromKeyBind(state AppState, key rune) AppState {
 			break
 		case key == BIND_KEY_CHAT:
 			state.focusInput = true
+			break
+		case key == BIND_KEY_QUIT:
+			state.quit = true
 			break
 		case unicode.IsDigit(key):
 			state.jumpBy = int(key - '0') 

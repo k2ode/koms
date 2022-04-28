@@ -50,7 +50,7 @@ func run() {
 		MakeInputDoneFn(input, onInputEscape, onInputEnter),
 	)
 
-	onKeyDown := MakeOnKeyDown(&state, update)
+	onKeyDown := MakeOnKeyDown(app, &state, update)
 	messages.SetInputCapture(onKeyDown)
 
 
@@ -105,9 +105,10 @@ func MakeOnInputEnter(client Client, state *AppState, updateCache UpdateCacheFn)
 }
 
 type OnKeyDownFn = func(*tcell.EventKey) *tcell.EventKey
-func MakeOnKeyDown(state *AppState, update func(AppState)) OnKeyDownFn {
+func MakeOnKeyDown(app *tview.Application, state *AppState, update func(AppState)) OnKeyDownFn {
 	return func(event *tcell.EventKey) *tcell.EventKey {
 		newState := UpdateStateFromKeyBind(*state, event.Rune())
+		if newState.quit { app.Stop() }
 		update(newState)
 		*state = newState
 		return nil
