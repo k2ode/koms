@@ -15,6 +15,7 @@ type IntMod = func(int) int
 func MakeIncBy(max int, by int) IntMod {
 	return func(i int) int {
 		if i == max { return 0 }
+		if i + by > max { return max }
 		return i + by
 	}
 }
@@ -26,6 +27,7 @@ func MakeInc(max int) IntMod {
 func MakeDescBy(max int, by int) IntMod {
 	return func(i int) int {
 		if i == 0 { return max }
+		if i - by < 0 { return 0 }
 		return i - by
 	}
 }

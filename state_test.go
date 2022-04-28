@@ -29,6 +29,9 @@ func MakeMockState() AppState {
 	state.cache.conversations = append(state.cache.conversations, convo1, convo2)
 	state.cache.messages[0] = []Message{
 		{ id: "9" },
+		{ id: "10" },
+		{ id: "11" },
+		{ id: "12" },
 	}
 
 	state.conversations[0] = ConversationState{

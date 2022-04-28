@@ -19,8 +19,6 @@ func run() {
 
 	state := MakeInitialState()
 
-
-
 	conversations, conversationsUpdate := MakeConversations(client, state)
 	messages,      messagesUpdate      := MakeMessages(client, state)
 	preview,       previewUpdate       := MakePreview(state)
@@ -37,23 +35,7 @@ func run() {
 		{ inputUpdate(newState) }
 	}
 
-	updateCache := func() {
-		convos, err := client.GetConversations()
-		if err != nil { panic(err) }
-
-		state.cache.conversations = convos
-
-		for i, convo := range convos {
-			msgs, _ := client.GetConversationMessages(convo)
-			state.cache.messages[i] = msgs
-
-			convoState := state.conversations[i]
-			convoState.messagePos = len(msgs) - 1
-			state.conversations[i] = convoState
-		}
-
-		update(state)
-	}
+	updateCache := MakeUpdateCacheFn(client, &state, update)
 
 	onInputEscape := func(draft string) {
 		state.focusInput = false
@@ -79,6 +61,26 @@ func run() {
 
 	if err := app.Run(); err != nil {
 		panic(err)
+	}
+}
+
+func MakeUpdateCacheFn(client Client, state *AppState, update func(state AppState)) func() {
+	return func() {
+		convos, err := client.GetConversations()
+		if err != nil { panic(err) }
+
+		state.cache.conversations = convos
+
+		for i, convo := range convos {
+			msgs, _ := client.GetConversationMessages(convo)
+			state.cache.messages[i] = msgs
+
+			convoState := state.conversations[i]
+			convoState.messagePos = len(msgs) - 1
+			state.conversations[i] = convoState
+		}
+
+		update(*state)
 	}
 }
 

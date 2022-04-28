@@ -35,3 +35,28 @@ func TestUtilMakeDesc(t *testing.T) {
 	assert.Equal(t, desc(1), 0)
 	assert.Equal(t, desc(0), 5)
 }
+
+func TestUtilMakeIncBy(t *testing.T) {
+	inc := MakeIncBy(5, 2)
+
+	assert.Equal(t, inc(0), 2)
+	assert.Equal(t, inc(3), 5)
+
+	assert.Equal(t, inc(5), 0)
+
+	assert.Equal(t, inc(3), 5)
+	assert.Equal(t, inc(4), 5)
+}
+
+
+func TestUtilMakeDescBy(t *testing.T) {
+	desc := MakeDescBy(5, 2)
+
+	assert.Equal(t, desc(5), 3)
+	assert.Equal(t, desc(4), 2)
+
+	assert.Equal(t, desc(0), 5)
+
+	assert.Equal(t, desc(2), 0)
+	assert.Equal(t, desc(1), 0)
+}
