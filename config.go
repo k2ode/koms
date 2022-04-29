@@ -149,7 +149,8 @@ func UpdateStateFromKeyBind(state AppState, key rune) AppState {
 			maxMsgs := len(msgs) - 1
 
 			jumpBy := state.jumpBy
-			state.jumpBy = 1
+			if jumpBy == -1 { jumpBy = 1 }
+			state.jumpBy = -1
 
 			var fn func(int) int
 			if key == BIND_KEY_DOWN { fn = MakeIncBy(maxMsgs, jumpBy) } else
@@ -165,7 +166,13 @@ func UpdateStateFromKeyBind(state AppState, key rune) AppState {
 			state.quit = true
 			break
 		case unicode.IsDigit(key):
-			state.jumpBy = int(key - '0') 
+			var jumpBy int
+			numb := int(key - '0') 
+
+			if state.jumpBy == -1 { jumpBy = numb } else
+			{ jumpBy = state.jumpBy * 10 + numb }
+
+			state.jumpBy = jumpBy
 			break
 	}
 	return state

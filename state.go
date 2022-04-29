@@ -28,7 +28,7 @@ func MakeEmptyState() AppState {
 		},
 		conversations: make(map[int]ConversationState),
 		pos: 0,
-		jumpBy: 1,
+		jumpBy: -1,
 	}
 }
 
