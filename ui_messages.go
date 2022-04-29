@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
@@ -9,7 +8,7 @@ type MessagesComponent = *tview.List
 
 func MakeMessages(client Client, state AppState) (MessagesComponent, UpdateStateFn) {
 	messages := tview.NewList()
-	UpdateMessageStyle(messages, state)
+	UpdateMessagesStyle(messages, state)
 
 	updateMessages := MakeMessagesUpdateFn(client, messages)
 
@@ -18,27 +17,9 @@ func MakeMessages(client Client, state AppState) (MessagesComponent, UpdateState
 	return messages, updateMessages
 }
 
-func UpdateMessageStyle(messages MessagesComponent, state AppState) {
-	isFocus := state.focusInput
-	colorBackground := GetMessageFocusBackgroundColor(isFocus)
-	messages.SetSelectedBackgroundColor(colorBackground)
-	colorForeground := GetMessageFocusForegroundColor(isFocus)
-	messages.SetSelectedTextColor(colorForeground)
-}
-
-func GetMessageFocusBackgroundColor(focusInput bool) tcell.Color {
-	if focusInput { return MESSAGE_FOCUS_BACKGROUND_INSERT }
-	return MESSAGE_FOCUS_BACKGROUND_NORMAL 
-}
-
-func GetMessageFocusForegroundColor(focusInput bool) tcell.Color {
-	if focusInput { return MESSAGE_FOCUS_FOREGROUND_INSERT }
-	return MESSAGE_FOCUS_FOREGROUND_NORMAL 
-}
-
 func MakeMessagesUpdateFn(client Client, messages MessagesComponent) UpdateStateFn {
 	return func(state AppState) {
-		UpdateMessageStyle(messages, state)
+		UpdateMessagesStyle(messages, state)
 		messages.Clear()
 
 		conversationMessages, exists := GetCacheMessages(state)

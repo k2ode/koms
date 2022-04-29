@@ -21,11 +21,11 @@ const BIND_KEY_CHAT   = '/'
 
 // Colors
 
-const MESSAGE_FOCUS_BACKGROUND_NORMAL = tcell.ColorWhite
-const MESSAGE_FOCUS_BACKGROUND_INSERT = tcell.ColorGray
+const FOCUS_BACKGROUND_NORMAL = tcell.ColorWhite
+const FOCUS_BACKGROUND_INSERT = tcell.ColorGray
 
-const MESSAGE_FOCUS_FOREGROUND_NORMAL = tcell.ColorDefault
-const MESSAGE_FOCUS_FOREGROUND_INSERT = tcell.ColorWhite
+const FOCUS_FOREGROUND_NORMAL = tcell.ColorDefault
+const FOCUS_FOREGROUND_INSERT = tcell.ColorWhite
 
 // Layout
 
@@ -176,4 +176,30 @@ func UpdateStateFromKeyBind(state AppState, key rune) AppState {
 			break
 	}
 	return state
+}
+
+func UpdateMessagesStyle(messages MessagesComponent, state AppState) {
+	isFocus := state.focusInput
+	colorBackground := GetFocusBackgroundColor(isFocus)
+	messages.SetSelectedBackgroundColor(colorBackground)
+	colorForeground := GetFocusForegroundColor(isFocus)
+	messages.SetSelectedTextColor(colorForeground)
+}
+
+func UpdateConversationsStyle(conversations ConversationsComponent, state AppState) {
+	isFocus := state.focusInput
+	colorBackground := GetFocusBackgroundColor(isFocus)
+	conversations.SetSelectedBackgroundColor(colorBackground)
+	colorForeground := GetFocusForegroundColor(isFocus)
+	conversations.SetSelectedTextColor(colorForeground)
+}
+
+func GetFocusBackgroundColor(focusInput bool) tcell.Color {
+	if focusInput { return FOCUS_BACKGROUND_INSERT }
+	return FOCUS_BACKGROUND_NORMAL 
+}
+
+func GetFocusForegroundColor(focusInput bool) tcell.Color {
+	if focusInput { return FOCUS_FOREGROUND_INSERT }
+	return FOCUS_FOREGROUND_NORMAL 
 }

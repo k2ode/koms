@@ -6,6 +6,7 @@ type ConversationsComponent = *tview.List
 
 func MakeConversations(client Client, state AppState) (ConversationsComponent, UpdateStateFn) {
 	conversations := tview.NewList()
+	UpdateConversationsStyle(conversations, state)
 
 	updateConversations := MakeConversationsUpdateFn(client, conversations)
 
@@ -16,6 +17,7 @@ func MakeConversations(client Client, state AppState) (ConversationsComponent, U
 
 func MakeConversationsUpdateFn(client Client, conversations ConversationsComponent) UpdateStateFn {
 	return func(state AppState) {
+		UpdateConversationsStyle(conversations, state)
 		conversations.Clear()
 		for _, conversation := range state.cache.conversations {
 			label := ParseConversation(client, conversation)

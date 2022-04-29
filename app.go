@@ -41,6 +41,7 @@ func run() {
 		state.focusInput = false
 		state = UpdateStateDraft(state, draft)
 		messagesUpdate(state)
+		conversationsUpdate(state)
 		app.SetFocus(messages)
 	}
 
