@@ -83,7 +83,7 @@ func TestClientMockABContact(t *testing.T) {
 	conversation := conversations[0]
 	messages, err := client.GetConversationMessages(conversation)
 
-	assert.Equal(t, len(messages), 3)
+	assert.Equal(t, len(messages), 4)
 
 	firstMessage := messages[0]
 	assert.Equal(t, firstMessage.provider, "a")

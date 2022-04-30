@@ -57,6 +57,10 @@ func GetStateProvider(state AppState) string {
 	return state.conversations[state.pos].provider
 }
 
+func GetStateMessage(state AppState) Message {
+	return state.cache.messages[state.pos][state.conversations[state.pos].messagePos]
+}
+
 func UpdateStateConversationState(state AppState, fn func(ConversationState) ConversationState) AppState {
 	conversation := GetStateConversation(state)
 	state.conversations[state.pos] = fn(conversation)
@@ -80,6 +84,13 @@ func UpdateStateMessagePos(state AppState, pos int) AppState {
 func UpdateStateMessagePosFn(state AppState, fn func(int) int) AppState {
 	return UpdateStateConversationState(state, func(convo ConversationState) ConversationState {
 		convo.messagePos = fn(convo.messagePos)
+		return convo
+	})
+}
+
+func UpdateStateProvider(state AppState, provider string) AppState {
+	return UpdateStateConversationState(state, func(convo ConversationState) ConversationState {
+		convo.provider = provider
 		return convo
 	})
 }

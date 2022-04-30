@@ -6,7 +6,7 @@ import (
 
 type UpdateStateFn = func(AppState)
 
-func MakeContainer(conversations ConversationsComponent, messages MessagesComponent, input InputComponent, preview PreviewComponent) *tview.Grid {
+func MakeContainer(conversations ConversationsComponent, messages MessagesComponent, containerInput ComponentInputContainer, preview PreviewComponent) *tview.Grid {
 	containerRows := []int{ROWS_CONTENT, ROWS_INPUT}
 	containerColumns := []int{COLUMNS_CONVERSATIONS, COLUMNS_MESSAGES, COLUMNS_PREVIEW}
 
@@ -17,7 +17,7 @@ func MakeContainer(conversations ConversationsComponent, messages MessagesCompon
 
 	AddContainerConversations(container, conversations)
 	AddContainerMessages(container, messages)
-	AddContainerInput(container, input)
+	AddContainerInputContainer(container, containerInput)
 	AddContainerPreview(container, preview)
 
 	return container

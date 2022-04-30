@@ -118,6 +118,11 @@ func GetMessagePreview(message Message) string {
 	return message.body
 }
 
+func GetProviderDisplay(state AppState) string {
+	provider := state.conversations[state.pos].provider
+	return "provider: " + provider
+}
+
 func UpdateStateFromKeyBind(state AppState, key rune) AppState {
 	switch {
 		case key == BIND_KEY_TOP || key == BIND_KEY_BOTTOM:
@@ -175,6 +180,9 @@ func UpdateStateFromKeyBind(state AppState, key rune) AppState {
 			state.jumpBy = jumpBy
 			break
 	}
+
+	state = UpdateStateProvider(state, GetStateMessage(state).provider)
+
 	return state
 }
 

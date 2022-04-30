@@ -24,12 +24,16 @@ func run() {
 	preview,       previewUpdate       := MakePreview(state)
 	input,         inputUpdate         := MakeInput(state)
 
-	container                          := MakeContainer(conversations, messages, input, preview)
+	providerDisplay, providerUpdate := MakeProviderDisplay(state)
+	inputContainer, _ := MakeContainerInput(state, input, providerDisplay)
+
+	container                          := MakeContainer(conversations, messages, inputContainer, preview)
 
 	update := func(newState AppState) {
 		conversationsUpdate(newState)
 		messagesUpdate(newState)
 		previewUpdate(newState)
+		providerUpdate(newState)
 		
 		if newState.focusInput { app.SetFocus(input) } else
 		{ inputUpdate(newState) }
@@ -77,7 +81,11 @@ func MakeUpdateCacheFn(client Client, state *AppState, update func(state AppStat
 			state.cache.messages[i] = msgs
 
 			convoState := state.conversations[i]
-			convoState.messagePos = len(msgs) - 1
+			messagePos := len(msgs) - 1
+			convoState.messagePos = messagePos
+			lastMsg := msgs[messagePos]
+			lastMsgProvider := lastMsg.provider
+			convoState.provider = lastMsgProvider
 			state.conversations[i] = convoState
 		}
 
@@ -91,8 +99,8 @@ func MakeOnInputEnter(client Client, state *AppState, updateCache UpdateCacheFn)
 		if message == "" { return }
 
 		convo := GetCacheConversation(*state)
-		// convoState := GetStateConversation(state)
-		providerIds := []string{ "a" }
+		provider := GetStateProvider(*state)
+		providerIds := []string{ provider }
 		err := client.SendMessage(convo, message, providerIds)
 		if err != nil { panic(err) }
 

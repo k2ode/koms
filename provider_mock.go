@@ -91,6 +91,13 @@ func NewProviderMockB() (Provider, error) {
 						timestamp: time.Unix(100, 0),
 						reactions: []Reaction{},
 					},
+					{
+						id: "1",
+						from: "0",
+						body: "ay look at this",
+						timestamp: time.Unix(300, 0),
+						reactions: []Reaction{},
+					},
 				},
 			},
 		},

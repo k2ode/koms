@@ -89,6 +89,13 @@ func TestStateGetStateProvider(t *testing.T) {
 	assert.Equal(t, provider , "a")
 }
 
+func TestStateGetStateMessage(t *testing.T) {
+	state := MakeMockState()
+
+	msg := GetStateMessage(state)
+	assert.Equal(t, msg.id, "11")
+}
+
 func TestStateUpdateStateDraft(t *testing.T) {
 	state := MakeMockState()
 
@@ -112,4 +119,14 @@ func TestStateUpdateStateMessagePosFn(t *testing.T) {
 	newState := UpdateStateMessagePosFn(state, func(i int) int { return i - 1 })
 
 	assert.Equal(t, newState.conversations[newState.pos].messagePos, 1)
+}
+
+func TestStateUpdateStateProvider(t *testing.T) {
+	state := MakeMockState()
+
+	assert.Equal(t, GetStateProvider(state), "a")
+
+	state = UpdateStateProvider(state, "b")
+
+	assert.Equal(t, GetStateProvider(state), "b")
 }
