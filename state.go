@@ -1,5 +1,7 @@
 package main
 
+import "errors"
+
 type AppState struct {
 	cache         AppCache
 	conversations map[int]ConversationState
@@ -57,8 +59,12 @@ func GetStateProvider(state AppState) string {
 	return state.conversations[state.pos].provider
 }
 
-func GetStateMessage(state AppState) Message {
-	return state.cache.messages[state.pos][state.conversations[state.pos].messagePos]
+func GetStateMessage(state AppState) (Message, error) {
+	msgs, exists := GetCacheMessages(state)
+	if !exists { return Message{}, errors.New("no cached messages for convo") }
+	if len(msgs) == 0 { return Message{}, errors.New("no messages in convo") }
+	messagePos := GetStateMessagePos(state)
+	return msgs[messagePos], nil
 }
 
 func UpdateStateConversationState(state AppState, fn func(ConversationState) ConversationState) AppState {

@@ -92,7 +92,8 @@ func TestStateGetStateProvider(t *testing.T) {
 func TestStateGetStateMessage(t *testing.T) {
 	state := MakeMockState()
 
-	msg := GetStateMessage(state)
+	msg, err := GetStateMessage(state)
+	assert.NoError(t, err)
 	assert.Equal(t, msg.id, "11")
 }
 

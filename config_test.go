@@ -13,6 +13,19 @@ func TestConfigGetClient(t *testing.T) {
 	assert.NotEqual(t, client, nil)
 }
 
+func TestParseConversation(t *testing.T) {
+	provider, _ := NewProviderMockA()
+	client, _ := NewClient([]Provider{provider}, nil)
+
+	conversations, _ := client.GetConversations()
+
+	conversation := conversations[0]
+
+	text := ParseConversation(client, conversation)
+
+	assert.NotEqual(t, text, "")
+}
+
 func TestConfigUpdateStateFromKeyBindNextConvo(t *testing.T) {
 	state := MakeMockState()
 	assert.Equal(t, state.pos, 0)

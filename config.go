@@ -181,7 +181,11 @@ func UpdateStateFromKeyBind(state AppState, key rune) AppState {
 			break
 	}
 
-	state = UpdateStateProvider(state, GetStateMessage(state).provider)
+	msg, err := GetStateMessage(state)
+	if err != nil {
+		newProvider := msg.provider
+		state = UpdateStateProvider(state, newProvider)
+	}
 
 	return state
 }
