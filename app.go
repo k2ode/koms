@@ -51,9 +51,11 @@ func run() {
 
 	onInputEnter := MakeOnInputEnter(client, &state, updateCache)
 
-	input.SetDoneFunc(
-		MakeInputDoneFn(input, onInputEscape, onInputEnter),
-	)
+	doneFn := MakeInputDoneFn(input, onInputEscape, onInputEnter)
+	input.SetDoneFunc(doneFn)
+
+	autoCompleteFn := MakeAutoCompleteFn()
+	input.SetAutocompleteFunc(autoCompleteFn)
 
 	onKeyDown := MakeOnKeyDown(app, &state, update)
 	messages.SetInputCapture(onKeyDown)

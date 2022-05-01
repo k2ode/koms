@@ -215,3 +215,10 @@ func GetFocusForegroundColor(focusInput bool) tcell.Color {
 	if focusInput { return FOCUS_FOREGROUND_INSERT }
 	return FOCUS_FOREGROUND_NORMAL 
 }
+
+type AutoCompleteFn = func(draft string) (entries []string)
+func MakeAutoCompleteFn() AutoCompleteFn {
+	return func(draft string) (entries []string) {
+		return
+	}
+}
