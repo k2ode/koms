@@ -12,9 +12,10 @@ type AppState struct {
 }
 
 type ConversationState struct {
-	draft      string
-	messagePos int
-	provider   string
+	draft       string
+	messagePos  int
+	provider    string
+	selected    []string
 }
 
 type AppCache struct {
@@ -98,5 +99,25 @@ func UpdateStateProvider(state AppState, provider string) AppState {
 	return UpdateStateConversationState(state, func(convo ConversationState) ConversationState {
 		convo.provider = provider
 		return convo
+	})
+}
+
+func UpdateStateSelected(state AppState, fn func([]string) []string) AppState {
+	return UpdateStateConversationState(state, func(convo ConversationState) ConversationState {
+		convo.selected = fn(convo.selected)
+		return convo
+	})
+}
+
+func UpdateStateSelectedToggle(state AppState, toggledId string) AppState {
+	return UpdateStateSelected(state, func(ids []string) []string {
+		result := []string{}
+		removed := false
+		for _, id := range ids {
+			if id == toggledId { removed = true; continue }
+			result = append(result, id)
+		}
+		if !removed { result = append(result, toggledId) }
+		return result 
 	})
 }

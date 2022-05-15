@@ -38,6 +38,7 @@ func MakeMockState() AppState {
 		messagePos: 2,
 		draft: "hmm",
 		provider: "a",
+		selected: []string{},
 	}
 
 	return state
@@ -130,4 +131,22 @@ func TestStateUpdateStateProvider(t *testing.T) {
 	state = UpdateStateProvider(state, "b")
 
 	assert.Equal(t, GetStateProvider(state), "b")
+}
+
+func TestStateUpdateStateSelected(t *testing.T) {
+	state := MakeMockState()
+
+	assert.Equal(t, state.conversations[0].selected, []string{})
+
+	state = UpdateStateSelectedToggle(state, "0")
+
+	assert.Equal(t, state.conversations[0].selected, []string{"0"})
+
+	state = UpdateStateSelectedToggle(state, "1")
+
+	assert.Equal(t, state.conversations[0].selected, []string{"0", "1"})
+
+	state = UpdateStateSelectedToggle(state, "0")
+
+	assert.Equal(t, state.conversations[0].selected, []string{"1"})
 }

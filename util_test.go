@@ -60,3 +60,19 @@ func TestUtilMakeDescBy(t *testing.T) {
 	assert.Equal(t, desc(2), 0)
 	assert.Equal(t, desc(1), 0)
 }
+
+// func TestUtilFind(t *testing.T) {
+// 	arr := []int{1, 2, 3, 4, 5}
+
+// 	assert.Equal(t, Find(arr, 0), -1)
+// 	assert.Equal(t, Find(arr, 1), 0)
+// 	assert.Equal(t, Find(arr, 5), 4)
+// }
+
+// func TestUtilContains(t *testing.T) {
+// 	arr := []int{1, 2, 3, 4, 5}
+
+// 	assert.False(t, Contains(arr, 0))
+// 	assert.True(t, Contains(arr, 1))
+// 	assert.True(t, Contains(arr, 5))
+// }

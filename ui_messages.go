@@ -26,7 +26,8 @@ func MakeMessagesUpdateFn(client Client, messages MessagesComponent) UpdateState
 		if !exists { return }
 
 		for _, message := range conversationMessages {
-			parsedMessage := ParseMessage(client, message)
+			conversation := GetStateConversation(state)
+			parsedMessage := ParseMessage(client, conversation, message)
 			messages.AddItem(parsedMessage, "", 0, nil)
 		}
 

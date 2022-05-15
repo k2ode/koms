@@ -34,7 +34,7 @@ func run() {
 		messagesUpdate(newState)
 		previewUpdate(newState)
 		providerUpdate(newState)
-		
+
 		if newState.focusInput { app.SetFocus(input) } else
 		{ inputUpdate(newState) }
 	}

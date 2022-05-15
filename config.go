@@ -15,6 +15,7 @@ const BIND_KEY_UP     = 'k'
 const BIND_KEY_RIGHT  = 'l'
 const BIND_KEY_TOP    = 'g'
 const BIND_KEY_BOTTOM = 'G'
+const BIND_KEY_SELECT = 'v'
 const BIND_KEY_QUIT   = 'q'
 const BIND_KEY_CHAT   = '/'
 
@@ -104,14 +105,18 @@ func ParseConversation(client Client, conversation Conversation) string {
 
 	var result string
 
-	if conversation.label != "" { result  = conversation.label } else
+	if conversation.label != "" { result = conversation.label } else
 	{ result = parseIds(conversation.contactIds) }
 
 	return result
 }
 
-func ParseMessage(client Client, message Message) string {
-	return message.provider + ": " + message.body
+func ParseMessage(client Client, conversation ConversationState, message Message) string {
+	var prefix string
+	id := message.provider + message.id
+	isSelected := Contains(conversation.selected, id)
+	if isSelected { prefix = "S " }
+	return prefix + message.provider + ": " + message.body
 }
 
 func GetMessagePreview(message Message) string {
@@ -132,7 +137,7 @@ func UpdateStateFromKeyBind(state AppState, key rune) AppState {
 				msgs, exists := GetCacheMessages(state)
 				if !exists { return state }
 				maxMsgs := len(msgs) - 1
-				messagePos = maxMsgs 
+				messagePos = maxMsgs
 			}
 
 			state = UpdateStateMessagePos(state, messagePos)
@@ -145,11 +150,11 @@ func UpdateStateFromKeyBind(state AppState, key rune) AppState {
 			if key == BIND_KEY_RIGHT { fn = MakeInc(maxConvos) } else
 			{ fn = MakeDesc(maxConvos) }
 
-			state.pos = fn(state.pos) 
+			state.pos = fn(state.pos)
 
 			break
 		case key == BIND_KEY_UP || key == BIND_KEY_DOWN:
-			msgs, exists := GetCacheMessages(state) 
+			msgs, exists := GetCacheMessages(state)
 			if !exists { return state }
 			maxMsgs := len(msgs) - 1
 
@@ -172,12 +177,19 @@ func UpdateStateFromKeyBind(state AppState, key rune) AppState {
 			break
 		case unicode.IsDigit(key):
 			var jumpBy int
-			numb := int(key - '0') 
+			numb := int(key - '0')
 
 			if state.jumpBy == -1 { jumpBy = numb } else
 			{ jumpBy = state.jumpBy * 10 + numb }
 
 			state.jumpBy = jumpBy
+			break
+		case key == BIND_KEY_SELECT:
+			msg, err := GetStateMessage(state)
+			if err != nil { return state }
+
+			id := msg.provider + msg.id
+			state = UpdateStateSelectedToggle(state, id)
 			break
 	}
 
@@ -191,26 +203,26 @@ func UpdateMessagesStyle(messages MessagesComponent, state AppState) {
 	isFocus := state.focusInput
 	colorBackground := GetFocusBackgroundColor(isFocus)
 	messages.SetSelectedBackgroundColor(colorBackground)
-	colorForeground := GetFocusForegroundColor(isFocus)
-	messages.SetSelectedTextColor(colorForeground)
+	// colorForeground := GetFocusForegroundColor(isFocus)
+	// messages.SetSelectedTextColor(colorForeground)
 }
 
 func UpdateConversationsStyle(conversations ConversationsComponent, state AppState) {
 	isFocus := state.focusInput
 	colorBackground := GetFocusBackgroundColor(isFocus)
 	conversations.SetSelectedBackgroundColor(colorBackground)
-	colorForeground := GetFocusForegroundColor(isFocus)
-	conversations.SetSelectedTextColor(colorForeground)
+	// colorForeground := GetFocusForegroundColor(isFocus)
+	// conversations.SetSelectedTextColor(colorForeground)
 }
 
 func GetFocusBackgroundColor(focusInput bool) tcell.Color {
 	if focusInput { return FOCUS_BACKGROUND_INSERT }
-	return FOCUS_BACKGROUND_NORMAL 
+	return FOCUS_BACKGROUND_NORMAL
 }
 
 func GetFocusForegroundColor(focusInput bool) tcell.Color {
 	if focusInput { return FOCUS_FOREGROUND_INSERT }
-	return FOCUS_FOREGROUND_NORMAL 
+	return FOCUS_FOREGROUND_NORMAL
 }
 
 type AutoCompleteFn = func(draft string) (entries []string)

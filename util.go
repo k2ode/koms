@@ -35,3 +35,15 @@ func MakeDescBy(max int, by int) IntMod {
 func MakeDesc(max int) IntMod {
 	return MakeDescBy(max, 1)
 }
+
+func Contains(haystack []string, needle string) bool { 
+	return Find(haystack, needle) != -1
+}
+
+func Find(haystack []string, needle string) int {
+	for index, item := range haystack {
+		if item != needle { continue } 
+		return index
+	}
+	return -1
+}
