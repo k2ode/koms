@@ -3,6 +3,7 @@ package main
 import (
 	"testing"
 
+	"github.com/k2ode/koms/types"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -16,9 +17,9 @@ func TestStateMakeEmptyState(t *testing.T) {
 func MakeMockState() AppState {
 	state := MakeEmptyState()
 
-	MockConvo := func(id string) Conversation {
-		return Conversation{
-			conversations: []ConversationRaw{
+	MockConvo := func(id string) types.Conversation {
+		return types.Conversation{
+			conversations: []types.ConversationRaw{
 				{ id: id, participantIds: []string{"0"}, isGroupChat: false, label: "", provider: "a" },
 			},
 		}
@@ -27,7 +28,7 @@ func MakeMockState() AppState {
 	convo1 := MockConvo("6")
 	convo2 := MockConvo("1")
 	state.cache.conversations = append(state.cache.conversations, convo1, convo2)
-	state.cache.messages[0] = []Message{
+	state.cache.messages[0] = []types.Message{
 		{ id: "9" },
 		{ id: "10" },
 		{ id: "11" },

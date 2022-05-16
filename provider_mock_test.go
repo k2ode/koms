@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/k2ode/koms/types"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -60,7 +61,7 @@ func TestProviderMockConversationMessagesPrivateChat(t *testing.T) {
 	assert.Equal(t, secondMessage.from, "a:0")
 	assert.Equal(t, secondMessage.body, "hello there")
 	assert.Equal(t, secondMessage.timestamp, time.Unix(200, 0))
-	assert.Equal(t, secondMessage.reactions, []Reaction{})
+	assert.Equal(t, secondMessage.reactions, []types.Reaction{})
 	// assert.Equal(t, secondMessage.provider, "a")
 }
 
@@ -77,7 +78,7 @@ func TestProviderMockConversationMessageGroupChat(t *testing.T) {
 	assert.Equal(t, firstMessage.from, USER)
 	assert.Equal(t, firstMessage.body, "hi world")
 	assert.Equal(t, firstMessage.timestamp, time.Unix(200, 0))
-	assert.Equal(t, firstMessage.reactions, []Reaction{})
+	assert.Equal(t, firstMessage.reactions, []types.Reaction{})
 	// assert.Equal(t, firstMessage.provider, "a")
 
 	unicodeMessage := messages[1]
@@ -85,7 +86,7 @@ func TestProviderMockConversationMessageGroupChat(t *testing.T) {
 	assert.Equal(t, unicodeMessage.from, "a:1")
 	assert.Equal(t, unicodeMessage.body, "你好世界!")
 	assert.Equal(t, unicodeMessage.timestamp, time.Unix(300, 0))
-	assert.Equal(t, unicodeMessage.reactions, []Reaction{})
+	assert.Equal(t, unicodeMessage.reactions, []types.Reaction{})
 	// assert.Equal(t, unicodeMessage.provider, "a")
 }
 

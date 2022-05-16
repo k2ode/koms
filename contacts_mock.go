@@ -1,6 +1,10 @@
 package main
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/k2ode/koms/types"
+)
 
 type contactsMock struct {}
 
@@ -17,20 +21,20 @@ func (contacts *contactsMock) GetIdMap() (IdMap, error) {
 	return idMap, nil
 }
 
-func (contacts *contactsMock) GetContact(id string) (Contact, error) {
+func (contacts *contactsMock) GetContact(id string) (types.Contact, error) {
 	if id == "0" {
-		return Contact{
+		return types.Contact{
 			id: "0",
 			name: "Johnny",
 			tags: []string{"friends"},
 		}, nil
 	}
 	if id == "1" {
-		return Contact{
+		return types.Contact{
 			id: "1",
 			name: "Andrew",
 			tags: []string{"friends"},
 		}, nil
 	}
-	return Contact{}, errors.New("invalid contact id")
+	return types.Contact{}, errors.New("invalid contact id")
 }

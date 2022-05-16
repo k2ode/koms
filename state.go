@@ -1,6 +1,10 @@
 package main
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/k2ode/koms/types"
+)
 
 type AppState struct {
 	cache         AppCache
@@ -19,15 +23,15 @@ type ConversationState struct {
 }
 
 type AppCache struct {
-	conversations []Conversation
-	messages      map[int][]Message
+	conversations []types.Conversation
+	messages      map[int][]types.Message
 }
 
 func MakeEmptyState() AppState {
 	return AppState{
 		cache: AppCache{
-			conversations: []Conversation{},
-			messages: make(map[int][]Message),
+			conversations: []types.Conversation{},
+			messages: make(map[int][]types.Message),
 		},
 		conversations: make(map[int]ConversationState),
 		pos: 0,
@@ -39,11 +43,11 @@ func GetStateConversation(state AppState) ConversationState {
 	return state.conversations[state.pos]
 }
 
-func GetCacheConversation(state AppState) Conversation {
+func GetCacheConversation(state AppState) types.Conversation {
 	return state.cache.conversations[state.pos]
 }
 
-func GetCacheMessages(state AppState) ([]Message, bool) {
+func GetCacheMessages(state AppState) ([]types.Message, bool) {
 	messages, exists := state.cache.messages[state.pos]
 	return messages, exists
 }
@@ -60,10 +64,10 @@ func GetStateProvider(state AppState) string {
 	return state.conversations[state.pos].provider
 }
 
-func GetStateMessage(state AppState) (Message, error) {
+func GetStateMessage(state AppState) (types.Message, error) {
 	msgs, exists := GetCacheMessages(state)
-	if !exists { return Message{}, errors.New("no cached messages for convo") }
-	if len(msgs) == 0 { return Message{}, errors.New("no messages in convo") }
+	if !exists { return types.Message{}, errors.New("no cached messages for convo") }
+	if len(msgs) == 0 { return types.Message{}, errors.New("no messages in convo") }
 	messagePos := GetStateMessagePos(state)
 	return msgs[messagePos], nil
 }

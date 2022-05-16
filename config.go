@@ -5,6 +5,7 @@ import (
 	"unicode"
 
 	"github.com/gdamore/tcell/v2"
+	"github.com/k2ode/koms/types"
 )
 
 // Bindings
@@ -98,7 +99,7 @@ func GetClient() (Client, error) {
 	return client, nil
 }
 
-func ParseConversation(client Client, conversation Conversation) string {
+func ParseConversation(client Client, conversation types.Conversation) string {
 	parseIds := func (ids []string) string {
 		return strings.Join(ids, ", ")
 	}
@@ -111,7 +112,7 @@ func ParseConversation(client Client, conversation Conversation) string {
 	return result
 }
 
-func ParseMessage(client Client, conversation ConversationState, message Message) string {
+func ParseMessage(client Client, conversation ConversationState, message types.Message) string {
 	var prefix string
 	id := message.provider + message.id
 	isSelected := Contains(conversation.selected, id)
@@ -119,7 +120,7 @@ func ParseMessage(client Client, conversation ConversationState, message Message
 	return prefix + message.provider + ": " + message.body
 }
 
-func GetMessagePreview(message Message) string {
+func GetMessagePreview(message types.Message) string {
 	return message.body
 }
 

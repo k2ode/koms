@@ -3,6 +3,8 @@ package main
 import (
 	"errors"
 	"sort"
+
+	"github.com/k2ode/koms/types"
 )
 
 
@@ -11,15 +13,15 @@ type Client interface {
 
 	GetProvider(id string) (Provider, error)
 	
-	GetConversations() ([]Conversation, error)
+	GetConversations() ([]types.Conversation, error)
 
-	GetContact(id string) (Contact, error)
+	GetContact(id string) (types.Contact, error)
 
 	GetIdMap() (IdMap, error)
 
-	GetConversationMessages(conversation Conversation) ([]Message, error)
+	GetConversationMessages(conversation types.Conversation) ([]types.Message, error)
 
-	SendMessage(conversation Conversation, message string, providerIds []string) error
+	SendMessage(conversation types.Conversation, message string, providerIds []string) error
 }
 
 type client struct {
@@ -59,8 +61,8 @@ func (client *client) GetProvider(id string) (Provider, error) {
 	return nil, errors.New("invalid provider")
 }
 
-func (client *client) GetConversations() ([]Conversation, error) {
-	var all []ConversationRaw
+func (client *client) GetConversations() ([]types.Conversation, error) {
+	var all []types.ConversationRaw
 
 	for _, provider := range client.GetProviders() {
 		providerConversations, err := provider.GetConversations()
@@ -69,12 +71,12 @@ func (client *client) GetConversations() ([]Conversation, error) {
 		all = append(all, providerConversations...)
 	}
 
-	var conversations []Conversation
+	var conversations []types.Conversation
 
 	if client.contacts == nil {
 		for _, conversation := range all {
-			personOrGroupChat := Conversation{
-				conversations: []ConversationRaw{ conversation },
+			personOrGroupChat := types.Conversation{
+				conversations: []types.ConversationRaw{ conversation },
 				contactIds: conversation.participantIds,
 				isGroupChat: conversation.isGroupChat,
 				label: conversation.label,
@@ -86,7 +88,7 @@ func (client *client) GetConversations() ([]Conversation, error) {
 
 	// vvvvvvv    move all this to contacts      vvvvvv
 	idMap, err := client.GetIdMap()
-	if err != nil { return []Conversation{}, err }
+	if err != nil { return []types.Conversation{}, err }
 
 	matchId := func (id string) string {
 		match, exists := idMap[id]
@@ -106,8 +108,8 @@ func (client *client) GetConversations() ([]Conversation, error) {
 		}
 
 		if conversation.isGroupChat {
-			groupChat := Conversation{
-				conversations: []ConversationRaw{ conversation },
+			groupChat := types.Conversation{
+				conversations: []types.ConversationRaw{ conversation },
 				contactIds: contactIds,
 				isGroupChat: true,
 				label: conversation.label,
@@ -125,8 +127,8 @@ func (client *client) GetConversations() ([]Conversation, error) {
 
 		if !exists {
 			contactConversations[contactId] = position
-			person := Conversation{
-				conversations: []ConversationRaw{},
+			person := types.Conversation{
+				conversations: []types.ConversationRaw{},
 				contactIds: contactIds,
 				isGroupChat: false,
 			}
@@ -143,7 +145,7 @@ func (client *client) GetConversations() ([]Conversation, error) {
 	return conversations, nil
 }
 
-func (client *client) GetContact(id string) (Contact, error) {
+func (client *client) GetContact(id string) (types.Contact, error) {
 	return client.contacts.GetContact(id)
 }
 
@@ -151,8 +153,8 @@ func (client *client) GetIdMap() (IdMap, error) {
 	return client.contacts.GetIdMap()
 }
 
-func (client *client) GetConversationMessages(conversation Conversation) ([]Message, error) {
-	var messages []Message
+func (client *client) GetConversationMessages(conversation types.Conversation) ([]types.Message, error) {
+	var messages []types.Message
 
 
 
@@ -163,12 +165,12 @@ func (client *client) GetConversationMessages(conversation Conversation) ([]Mess
 		if err != nil { panic(err) }
 
 
-		var conversationMessages []Message
+		var conversationMessages []types.Message
 
 		for _, messageRaw := range messagesRaw {
-			conversationMessages = append(conversationMessages, Message{
+			conversationMessages = append(conversationMessages, types.Message{
 				id: messageRaw.id,
-				from: Contact{},
+				from: types.Contact{},
 				body: messageRaw.body,
 				provider: provider.GetId(),
 				timestamp: messageRaw.timestamp,
@@ -187,7 +189,7 @@ func (client *client) GetConversationMessages(conversation Conversation) ([]Mess
 	return messages, nil
 }
 
-func (client *client) SendMessage(conversation Conversation, message string, providerIds []string) error {
+func (client *client) SendMessage(conversation types.Conversation, message string, providerIds []string) error {
 	if message == "" { return errors.New("empty message") }
 
 	for _, providerId := range providerIds {
