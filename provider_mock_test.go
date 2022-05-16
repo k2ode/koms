@@ -23,15 +23,15 @@ func TestProviderMockConversations(t *testing.T) {
 	assert.Equal(t, len(conversations), 2, "Mock Provider should return 2 conversations")
 
 	privateChat := conversations[0]
-	assert.Equal(t, privateChat.id, "0")
-	assert.False(t, privateChat.isGroupChat)
-	assert.Equal(t, privateChat.participantIds, []string{"a:0"})
+	assert.Equal(t, privateChat.Id, "0")
+	assert.False(t, privateChat.IsGroupChat)
+	assert.Equal(t, privateChat.ParticipantIds, []string{"a:0"})
 
 	groupChat := conversations[1]
-	assert.Equal(t, groupChat.id, "1")
+	assert.Equal(t, groupChat.Id, "1")
 	// assert.Equal(t, groupChat.label, "Example Group Chat")
-	assert.True(t, groupChat.isGroupChat)
-	assert.Equal(t, groupChat.participantIds, []string{"a:0", "a:1"})
+	assert.True(t, groupChat.IsGroupChat)
+	assert.Equal(t, groupChat.ParticipantIds, []string{"a:0", "a:1"})
 }
 
 func TestProviderMockConversationMessagesInvalidId(t *testing.T) {
@@ -48,20 +48,20 @@ func TestProviderMockConversationMessagesPrivateChat(t *testing.T) {
 	assert.Equal(t, len(messages), 2)
 
 	firstMessage := messages[0]
-	assert.Equal(t, firstMessage.id, "0")
-	assert.Equal(t, firstMessage.from, USER)
-	assert.Equal(t, firstMessage.body, "hi world")
-	assert.Equal(t, firstMessage.timestamp, time.Unix(0, 0))
-	assert.Equal(t, firstMessage.reactions, []Reaction{})
+	assert.Equal(t, firstMessage.Id, "0")
+	assert.Equal(t, firstMessage.From, USER)
+	assert.Equal(t, firstMessage.Body, "hi world")
+	assert.Equal(t, firstMessage.Timestamp, time.Unix(0, 0))
+	assert.Equal(t, firstMessage.Reactions, []types.Reaction{})
 	// assert.Equal(t, firstMessage.provider, "a")
 
 
 	secondMessage := messages[1]
-	assert.Equal(t, secondMessage.id, "1")
-	assert.Equal(t, secondMessage.from, "a:0")
-	assert.Equal(t, secondMessage.body, "hello there")
-	assert.Equal(t, secondMessage.timestamp, time.Unix(200, 0))
-	assert.Equal(t, secondMessage.reactions, []types.Reaction{})
+	assert.Equal(t, secondMessage.Id, "1")
+	assert.Equal(t, secondMessage.From, "a:0")
+	assert.Equal(t, secondMessage.Body, "hello there")
+	assert.Equal(t, secondMessage.Timestamp, time.Unix(200, 0))
+	assert.Equal(t, secondMessage.Reactions, []types.Reaction{})
 	// assert.Equal(t, secondMessage.provider, "a")
 }
 
@@ -74,19 +74,19 @@ func TestProviderMockConversationMessageGroupChat(t *testing.T) {
 	assert.Equal(t, len(messages), 2)
 
 	firstMessage := messages[0]
-	assert.Equal(t, firstMessage.id, "0")
-	assert.Equal(t, firstMessage.from, USER)
-	assert.Equal(t, firstMessage.body, "hi world")
-	assert.Equal(t, firstMessage.timestamp, time.Unix(200, 0))
-	assert.Equal(t, firstMessage.reactions, []types.Reaction{})
+	assert.Equal(t, firstMessage.Id, "0")
+	assert.Equal(t, firstMessage.From, USER)
+	assert.Equal(t, firstMessage.Body, "hi world")
+	assert.Equal(t, firstMessage.Timestamp, time.Unix(200, 0))
+	assert.Equal(t, firstMessage.Reactions, []types.Reaction{})
 	// assert.Equal(t, firstMessage.provider, "a")
 
 	unicodeMessage := messages[1]
-	assert.Equal(t, unicodeMessage.id, "1")
-	assert.Equal(t, unicodeMessage.from, "a:1")
-	assert.Equal(t, unicodeMessage.body, "你好世界!")
-	assert.Equal(t, unicodeMessage.timestamp, time.Unix(300, 0))
-	assert.Equal(t, unicodeMessage.reactions, []types.Reaction{})
+	assert.Equal(t, unicodeMessage.Id, "1")
+	assert.Equal(t, unicodeMessage.From, "a:1")
+	assert.Equal(t, unicodeMessage.Body, "你好世界!")
+	assert.Equal(t, unicodeMessage.Timestamp, time.Unix(300, 0))
+	assert.Equal(t, unicodeMessage.Reactions, []types.Reaction{})
 	// assert.Equal(t, unicodeMessage.provider, "a")
 }
 
@@ -107,5 +107,5 @@ func TestProviderMockSendMessage(t *testing.T) {
 	assert.Equal(t, len(messages), 3, "Afer sending message, messages length should reflect new message")
 
 	messageSent := messages[2]
-	assert.Equal(t, messageSent.body, "what is a foo bar")
+	assert.Equal(t, messageSent.Body, "what is a foo bar")
 }

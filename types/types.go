@@ -3,45 +3,45 @@ package types
 import "time"
 
 type Conversation struct {
-	conversations []ConversationRaw
-	contactIds    []string
-	isGroupChat   bool
-	label         string
+	Conversations []ConversationRaw
+	ContactIds    []string
+	IsGroupChat   bool
+	Label         string
 }
 
 type ConversationRaw struct {
-	id             string
-	participantIds []string
-	isGroupChat    bool
-	label          string
-	provider       string
+	Id             string
+	ParticipantIds []string
+	IsGroupChat    bool
+	Label          string
+	Provider       string
 }
 
 type MessageRaw struct {
-	id        string
-	from      string
-	body      string
-	timestamp time.Time
-	reactions []Reaction
+	Id        string
+	From      string
+	Body      string
+	Timestamp time.Time
+	Reactions []Reaction
 }
 
 type Message struct {
-	id        string
-	from      Contact
-	fromUser  bool
-	body      string
-	provider  string
-	timestamp time.Time
-	reactions []Reaction
+	Id        string
+	From      Contact
+	FromUser  bool
+	Body      string
+	Provider  string
+	Timestamp time.Time
+	Reactions []Reaction
 }
 
 type Reaction struct {
-	emoji string
-	from  string
+	Emoji string
+	From  string
 }
 
 type Contact struct {
-	id   string
-	name string
-	tags []string
+	Id   string
+	Name string
+	Tags []string
 }

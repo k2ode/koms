@@ -48,7 +48,7 @@ func TestClientContactsMockAGetContact(t *testing.T) {
 	contact, err := client.GetContact("0")
 	assert.NoError(t, err)
 
-	assert.Equal(t, contact.id, "0")
+	assert.Equal(t, contact.Id, "0")
 }
 
 func TestClientMockContactsGetIdMap(t *testing.T) {
@@ -86,16 +86,16 @@ func TestClientMockABContact(t *testing.T) {
 	assert.Equal(t, len(messages), 4)
 
 	firstMessage := messages[0]
-	assert.Equal(t, firstMessage.provider, "a")
-	assert.Equal(t, firstMessage.timestamp, time.Unix(0, 0))
+	assert.Equal(t, firstMessage.Provider, "a")
+	assert.Equal(t, firstMessage.Timestamp, time.Unix(0, 0))
 
 	secondMessage := messages[1]
-	assert.Equal(t, secondMessage.provider, "b")
-	assert.Equal(t, secondMessage.timestamp, time.Unix(100, 0))
+	assert.Equal(t, secondMessage.Provider, "b")
+	assert.Equal(t, secondMessage.Timestamp, time.Unix(100, 0))
 
 	thirdMessage := messages[2]
-	assert.Equal(t, thirdMessage.provider, "a")
-	assert.Equal(t, thirdMessage.timestamp, time.Unix(200, 0))
+	assert.Equal(t, thirdMessage.Provider, "a")
+	assert.Equal(t, thirdMessage.Timestamp, time.Unix(200, 0))
 }
 
 func TestClientMockAGetProvider(t *testing.T) {

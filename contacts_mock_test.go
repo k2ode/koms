@@ -43,14 +43,14 @@ func TestContactsGetFromId(t *testing.T) {
 	firstContact, err := contacts.GetContact("0")
 	assert.NoError(t, err)
 
-	assert.Equal(t, firstContact.id, "0")
-	assert.Equal(t, firstContact.name, "Johnny")
-	assert.Equal(t, firstContact.tags, []string{"friends"})
+	assert.Equal(t, firstContact.Id, "0")
+	assert.Equal(t, firstContact.Name, "Johnny")
+	assert.Equal(t, firstContact.Tags, []string{"friends"})
 
 	secondContact, err := contacts.GetContact("1")
 	assert.NoError(t, err)
 
-	assert.Equal(t, secondContact.id, "1")
-	assert.Equal(t, secondContact.name, "Andrew")
-	assert.Equal(t, secondContact.tags, []string{"friends"})
+	assert.Equal(t, secondContact.Id, "1")
+	assert.Equal(t, secondContact.Name, "Andrew")
+	assert.Equal(t, secondContact.Tags, []string{"friends"})
 }

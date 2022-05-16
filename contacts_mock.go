@@ -24,16 +24,16 @@ func (contacts *contactsMock) GetIdMap() (IdMap, error) {
 func (contacts *contactsMock) GetContact(id string) (types.Contact, error) {
 	if id == "0" {
 		return types.Contact{
-			id: "0",
-			name: "Johnny",
-			tags: []string{"friends"},
+			Id: "0",
+			Name: "Johnny",
+			Tags: []string{"friends"},
 		}, nil
 	}
 	if id == "1" {
 		return types.Contact{
-			id: "1",
-			name: "Andrew",
-			tags: []string{"friends"},
+			Id: "1",
+			Name: "Andrew",
+			Tags: []string{"friends"},
 		}, nil
 	}
 	return types.Contact{}, errors.New("invalid contact id")

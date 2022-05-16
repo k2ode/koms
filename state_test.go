@@ -19,8 +19,8 @@ func MakeMockState() AppState {
 
 	MockConvo := func(id string) types.Conversation {
 		return types.Conversation{
-			conversations: []types.ConversationRaw{
-				{ id: id, participantIds: []string{"0"}, isGroupChat: false, label: "", provider: "a" },
+			Conversations: []types.ConversationRaw{
+				{ Id: id, ParticipantIds: []string{"0"}, IsGroupChat: false, Label: "", Provider: "a" },
 			},
 		}
 	}
@@ -29,10 +29,10 @@ func MakeMockState() AppState {
 	convo2 := MockConvo("1")
 	state.cache.conversations = append(state.cache.conversations, convo1, convo2)
 	state.cache.messages[0] = []types.Message{
-		{ id: "9" },
-		{ id: "10" },
-		{ id: "11" },
-		{ id: "12" },
+		{ Id: "9" },
+		{ Id: "10" },
+		{ Id: "11" },
+		{ Id: "12" },
 	}
 
 	state.conversations[0] = ConversationState{
@@ -60,14 +60,14 @@ func TestStateGetCacheMessages(t *testing.T) {
 	messages, exists := GetCacheMessages(state)
 	assert.True(t, exists)
 	assert.NotEmpty(t, messages)
-	assert.Equal(t, messages[0].id, "9")
+	assert.Equal(t, messages[0].Id, "9")
 }
 
 func TestStateGetCacheConversation(t *testing.T) {
 	state := MakeMockState()
 
 	conversation := GetCacheConversation(state)
-	assert.Equal(t, conversation.conversations[0].id, "6")
+	assert.Equal(t, conversation.Conversations[0].Id, "6")
 }
 
 func TestStateGetStateMessagePos(t *testing.T) {
@@ -96,7 +96,7 @@ func TestStateGetStateMessage(t *testing.T) {
 
 	msg, err := GetStateMessage(state)
 	assert.NoError(t, err)
-	assert.Equal(t, msg.id, "11")
+	assert.Equal(t, msg.Id, "11")
 }
 
 func TestStateUpdateStateDraft(t *testing.T) {

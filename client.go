@@ -76,10 +76,10 @@ func (client *client) GetConversations() ([]types.Conversation, error) {
 	if client.contacts == nil {
 		for _, conversation := range all {
 			personOrGroupChat := types.Conversation{
-				conversations: []types.ConversationRaw{ conversation },
-				contactIds: conversation.participantIds,
-				isGroupChat: conversation.isGroupChat,
-				label: conversation.label,
+				Conversations: []types.ConversationRaw{ conversation },
+				ContactIds: conversation.ParticipantIds,
+				IsGroupChat: conversation.IsGroupChat,
+				Label: conversation.Label,
 			}
 			conversations = append(conversations, personOrGroupChat)
 		}
@@ -103,16 +103,16 @@ func (client *client) GetConversations() ([]types.Conversation, error) {
 
 	for _, conversation := range all {
 		var contactIds []string
-		for _, id := range conversation.participantIds {
+		for _, id := range conversation.ParticipantIds {
 			contactIds = append(contactIds, matchId(id))
 		}
 
-		if conversation.isGroupChat {
+		if conversation.IsGroupChat {
 			groupChat := types.Conversation{
-				conversations: []types.ConversationRaw{ conversation },
-				contactIds: contactIds,
-				isGroupChat: true,
-				label: conversation.label,
+				Conversations: []types.ConversationRaw{ conversation },
+				ContactIds: contactIds,
+				IsGroupChat: true,
+				Label: conversation.Label,
 			}
 			conversations = append(conversations, groupChat)
 			position++
@@ -128,9 +128,9 @@ func (client *client) GetConversations() ([]types.Conversation, error) {
 		if !exists {
 			contactConversations[contactId] = position
 			person := types.Conversation{
-				conversations: []types.ConversationRaw{},
-				contactIds: contactIds,
-				isGroupChat: false,
+				Conversations: []types.ConversationRaw{},
+				ContactIds: contactIds,
+				IsGroupChat: false,
 			}
 			conversations = append(conversations, person)
 			convPos = position
@@ -139,7 +139,7 @@ func (client *client) GetConversations() ([]types.Conversation, error) {
 
 		// conversation.provider = 
 
-		conversations[convPos].conversations = append(conversations[convPos].conversations, conversation)
+		conversations[convPos].Conversations = append(conversations[convPos].Conversations, conversation)
 	}
 
 	return conversations, nil
@@ -158,10 +158,10 @@ func (client *client) GetConversationMessages(conversation types.Conversation) (
 
 
 
-	for _, convo := range conversation.conversations {
-		provider, exists := client.providers[convo.provider]
+	for _, convo := range conversation.Conversations {
+		provider, exists := client.providers[convo.Provider]
 		if !exists { return messages, errors.New("invalid provider") }
-		messagesRaw, err := provider.GetConversationMessages(convo.id)
+		messagesRaw, err := provider.GetConversationMessages(convo.Id)
 		if err != nil { panic(err) }
 
 
@@ -169,12 +169,12 @@ func (client *client) GetConversationMessages(conversation types.Conversation) (
 
 		for _, messageRaw := range messagesRaw {
 			conversationMessages = append(conversationMessages, types.Message{
-				id: messageRaw.id,
-				from: types.Contact{},
-				body: messageRaw.body,
-				provider: provider.GetId(),
-				timestamp: messageRaw.timestamp,
-				reactions: messageRaw.reactions,
+				Id: messageRaw.Id,
+				From: types.Contact{},
+				Body: messageRaw.Body,
+				Provider: provider.GetId(),
+				Timestamp: messageRaw.Timestamp,
+				Reactions: messageRaw.Reactions,
 			})
 		}
 
@@ -183,7 +183,7 @@ func (client *client) GetConversationMessages(conversation types.Conversation) (
 	}
 
 	sort.Slice(messages, func(p, q int) bool {
-		return messages[p].timestamp.Before(messages[q].timestamp)
+		return messages[p].Timestamp.Before(messages[q].Timestamp)
 	})
 
 	return messages, nil
@@ -193,9 +193,9 @@ func (client *client) SendMessage(conversation types.Conversation, message strin
 	if message == "" { return errors.New("empty message") }
 
 	for _, providerId := range providerIds {
-		for _, convo := range conversation.conversations {
-			if convo.provider == providerId {
-				err := client.providers[providerId].SendMessage(convo.id, message)
+		for _, convo := range conversation.Conversations {
+			if convo.Provider == providerId {
+				err := client.providers[providerId].SendMessage(convo.Id, message)
 				if err != nil { return err }
 			}
 		}

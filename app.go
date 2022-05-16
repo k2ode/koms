@@ -86,7 +86,7 @@ func MakeUpdateCacheFn(client Client, state *AppState, update func(state AppStat
 			messagePos := len(msgs) - 1
 			convoState.messagePos = messagePos
 			lastMsg := msgs[messagePos]
-			lastMsgProvider := lastMsg.provider
+			lastMsgProvider := lastMsg.Provider
 			convoState.provider = lastMsgProvider
 			state.conversations[i] = convoState
 		}

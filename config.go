@@ -106,22 +106,22 @@ func ParseConversation(client Client, conversation types.Conversation) string {
 
 	var result string
 
-	if conversation.label != "" { result = conversation.label } else
-	{ result = parseIds(conversation.contactIds) }
+	if conversation.Label != "" { result = conversation.Label } else
+	{ result = parseIds(conversation.ContactIds) }
 
 	return result
 }
 
 func ParseMessage(client Client, conversation ConversationState, message types.Message) string {
 	var prefix string
-	id := message.provider + message.id
+	id := message.Provider + message.Id
 	isSelected := Contains(conversation.selected, id)
 	if isSelected { prefix = "S " }
-	return prefix + message.provider + ": " + message.body
+	return prefix + message.Provider + ": " + message.Body
 }
 
 func GetMessagePreview(message types.Message) string {
-	return message.body
+	return message.Body
 }
 
 func GetProviderDisplay(state AppState) string {
@@ -189,13 +189,13 @@ func UpdateStateFromKeyBind(state AppState, key rune) AppState {
 			msg, err := GetStateMessage(state)
 			if err != nil { return state }
 
-			id := msg.provider + msg.id
+			id := msg.Provider + msg.Id
 			state = UpdateStateSelectedToggle(state, id)
 			break
 	}
 
 	msg, err := GetStateMessage(state)
-	if err == nil { state = UpdateStateProvider(state, msg.provider) }
+	if err == nil { state = UpdateStateProvider(state, msg.Provider) }
 
 	return state
 }

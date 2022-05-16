@@ -24,49 +24,49 @@ func NewProviderMockA() (Provider, error) {
 		conversations: []ConversationData{
 			{
 				meta: ConversationRaw{
-					id: "0",
-					isGroupChat: false,
-					participantIds: []string{"a:0"},
-					provider: "a",
+					Id: "0",
+					IsGroupChat: false,
+					ParticipantIds: []string{"a:0"},
+					Provider: "a",
 				},
 				messages: []MessageRaw{
 					{
-						id: "0",
-						from: USER,
-						body: "hi world",
-						timestamp: time.Unix(0, 0),
-						reactions: []Reaction{},
+						Id: "0",
+						From: USER,
+						Body: "hi world",
+						Timestamp: time.Unix(0, 0),
+						Reactions: []Reaction{},
 					},
 					{
-						id: "1",
-						from: "a:0",
-						body: "hello there",
-						timestamp: time.Unix(200, 0),
-						reactions: []Reaction{},
+						Id: "1",
+						From: "a:0",
+						Body: "hello there",
+						Timestamp: time.Unix(200, 0),
+						Reactions: []Reaction{},
 					},
 				},
 			},
 			{
 				meta: ConversationRaw{
-					id: "1",
-					isGroupChat: true,
-					participantIds: []string{"a:0", "a:1"},
-					provider: "a",
+					Id: "1",
+					IsGroupChat: true,
+					ParticipantIds: []string{"a:0", "a:1"},
+					Provider: "a",
 				},
 				messages: []MessageRaw{
 					{
-						id: "0",
-						from: USER,
-						body: "hi world",
-						timestamp: time.Unix(200, 0),
-						reactions: []Reaction{},
+						Id: "0",
+						From: USER,
+						Body: "hi world",
+						Timestamp: time.Unix(200, 0),
+						Reactions: []Reaction{},
 					},
 					{
-						id: "1",
-						from: "a:1",
-						body: "你好世界!",
-						timestamp: time.Unix(300, 0),
-						reactions: []Reaction{},
+						Id: "1",
+						From: "a:1",
+						Body: "你好世界!",
+						Timestamp: time.Unix(300, 0),
+						Reactions: []Reaction{},
 					},
 				},
 			},
@@ -80,25 +80,25 @@ func NewProviderMockB() (Provider, error) {
 		conversations: []ConversationData{
 			{
 				meta: ConversationRaw{
-					id: "0",
-					isGroupChat: false,
-					participantIds: []string{"b:0"},
-					provider: "b",
+					Id: "0",
+					IsGroupChat: false,
+					ParticipantIds: []string{"b:0"},
+					Provider: "b",
 				},
 				messages: []MessageRaw{
 					{
-						id: "0",
-						from: USER,
-						body: "hi world",
-						timestamp: time.Unix(100, 0),
-						reactions: []Reaction{},
+						Id: "0",
+						From: USER,
+						Body: "hi world",
+						Timestamp: time.Unix(100, 0),
+						Reactions: []Reaction{},
 					},
 					{
-						id: "1",
-						from: "0",
-						body: "ay look at this",
-						timestamp: time.Unix(300, 0),
-						reactions: []Reaction{},
+						Id: "1",
+						From: "0",
+						Body: "ay look at this",
+						Timestamp: time.Unix(300, 0),
+						Reactions: []Reaction{},
 					},
 				},
 			},
@@ -120,7 +120,7 @@ func (providerMock *providerMock) GetConversations() ([]ConversationRaw, error) 
 
 func (providerMock *providerMock) GetConversationMessages(id string) ([]MessageRaw, error) {
 	for _, cp := range providerMock.conversations {
-		if cp.meta.id != id { continue }
+		if cp.meta.Id != id { continue }
 		return cp.messages, nil
 	}
 	return nil, errors.New("invalid conversation id") 
@@ -128,13 +128,13 @@ func (providerMock *providerMock) GetConversationMessages(id string) ([]MessageR
 
 func (providerMock *providerMock) SendMessage(id string, body string) error {
 	for i, cp := range providerMock.conversations {
-		if cp.meta.id != id { continue }
+		if cp.meta.Id != id { continue }
 		providerMock.conversations[i].messages = append(providerMock.conversations[i].messages, MessageRaw{
-			id: "0",
-			from: USER,
-			body: body,
-			timestamp: time.Now(),
-			reactions: []Reaction{},
+			Id: "0",
+			From: USER,
+			Body: body,
+			Timestamp: time.Now(),
+			Reactions: []Reaction{},
 		})
 		
 		return nil
