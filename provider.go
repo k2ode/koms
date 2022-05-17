@@ -10,4 +10,6 @@ type Provider interface {
 	SendMessage(id string, body string) error
 
 	GetId() string
+
+	Sync() error
 }

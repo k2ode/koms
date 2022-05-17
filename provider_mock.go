@@ -141,3 +141,7 @@ func (providerMock *providerMock) SendMessage(id string, body string) error {
 	}
 	return errors.New("inavlid conversation id")
 }
+
+func (providerMock *providerMock) Sync() error {
+	return nil
+}
