@@ -3,7 +3,7 @@ package main
 import (
 	"testing"
 
-	"github.com/k2ode/koms/types"
+	"github.com/k2on/koms/types"
 	"github.com/stretchr/testify/assert"
 )
 

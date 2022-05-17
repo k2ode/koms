@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/k2ode/koms/types"
+	"github.com/k2on/koms/types"
 	"github.com/stretchr/testify/assert"
 )
 

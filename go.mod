@@ -1,4 +1,4 @@
-module github.com/k2ode/koms
+module github.com/k2on/koms
 
 go 1.18
 

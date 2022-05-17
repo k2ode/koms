@@ -5,7 +5,7 @@ import (
 	"unicode"
 
 	"github.com/gdamore/tcell/v2"
-	"github.com/k2ode/koms/types"
+	"github.com/k2on/koms/types"
 )
 
 // Bindings

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	. "github.com/k2ode/koms/types"
+	. "github.com/k2on/koms/types"
 )
 
 

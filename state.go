@@ -3,7 +3,7 @@ package main
 import (
 	"errors"
 
-	"github.com/k2ode/koms/types"
+	"github.com/k2on/koms/types"
 )
 
 type AppState struct {

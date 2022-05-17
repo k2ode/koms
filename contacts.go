@@ -1,6 +1,6 @@
 package main
 
-import "github.com/k2ode/koms/types"
+import "github.com/k2on/koms/types"
 
 type IdMap map[string]string
 
