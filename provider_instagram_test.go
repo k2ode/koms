@@ -14,9 +14,12 @@ func TestProviderInstagram(t *testing.T) {
 	// err = provider.Sync()
 	// assert.NoError(t, err)
 
-	convos, err := provider.GetConversations()
-	assert.NoError(t, err)
+	// convos, err := provider.GetConversations()
+	// assert.NoError(t, err)
 
-	fmt.Println(convos)
+	id := "340282366841710300949128295624182493824"
+	msgs, err := provider.GetConversationMessages(id)
+	assert.NoError(t, err)
+	fmt.Println(msgs)
 
 }
