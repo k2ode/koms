@@ -20,6 +20,7 @@ type ConversationState struct {
 	messagePos  int
 	provider    string
 	selected    []string
+	carouselImageSelections map[int]int
 }
 
 type AppCache struct {
@@ -99,6 +100,20 @@ func UpdateStateMessagePosFn(state AppState, fn func(int) int) AppState {
 	})
 }
 
+func UpdateStateCarouselSelectedImage(state AppState, fn func(int) int) AppState {
+	return UpdateStateConversationState(state, func(convo ConversationState) ConversationState {
+		if convo.carouselImageSelections == nil { convo.carouselImageSelections = make(map[int]int) }
+		imageSelection := convo.carouselImageSelections[convo.messagePos]
+		convo.carouselImageSelections[convo.messagePos] = fn(imageSelection)
+		return convo
+	})
+}
+
+func GetStateCarouselSelectedImage(state AppState) int {
+	convo := GetStateConversation(state)
+	return convo.carouselImageSelections[convo.messagePos]
+}
+
 func UpdateStateProvider(state AppState, provider string) AppState {
 	return UpdateStateConversationState(state, func(convo ConversationState) ConversationState {
 		convo.provider = provider
@@ -122,6 +137,6 @@ func UpdateStateSelectedToggle(state AppState, toggledId string) AppState {
 			result = append(result, id)
 		}
 		if !removed { result = append(result, toggledId) }
-		return result 
+		return result
 	})
 }
