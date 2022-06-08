@@ -8,14 +8,19 @@ import (
 )
 
 func TestProviderInstagram(t *testing.T) {
-	provider, err := NewProviderIG()
+	provider, err := NewProviderIG("/Users/koon/.koms/ig/")
 	assert.NoError(t, err)
-
-	// err = provider.Sync()
-	// assert.NoError(t, err)
 
 	// convos, err := provider.GetConversations()
 	// assert.NoError(t, err)
+
+	// fmt.Println(convos)
+
+	// // err = provider.Sync()
+	// // assert.NoError(t, err)
+
+	// // convos, err := provider.GetConversations()
+	// // assert.NoError(t, err)
 
 	id := "340282366841710300949128295624182493824"
 	msgs, err := provider.GetConversationMessages(id)
