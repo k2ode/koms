@@ -29,10 +29,10 @@ func MakeMockState() AppState {
 	convo2 := MockConvo("1")
 	state.cache.conversations = append(state.cache.conversations, convo1, convo2)
 	state.cache.messages[0] = []types.Message{
-		{ Id: "9" },
-		{ Id: "10" },
-		{ Id: "11" },
-		{ Id: "12" },
+		{ Raw: types.MessageRaw{ Id: "9" } },
+		{ Raw: types.MessageRaw{ Id: "10" } },
+		{ Raw: types.MessageRaw{ Id: "11" } },
+		{ Raw: types.MessageRaw{ Id: "12" } },
 	}
 
 	state.conversations[0] = ConversationState{
@@ -60,7 +60,7 @@ func TestStateGetCacheMessages(t *testing.T) {
 	messages, exists := GetCacheMessages(state)
 	assert.True(t, exists)
 	assert.NotEmpty(t, messages)
-	assert.Equal(t, messages[0].Id, "9")
+	assert.Equal(t, messages[0].Raw.Id, "9")
 }
 
 func TestStateGetCacheConversation(t *testing.T) {
@@ -96,7 +96,7 @@ func TestStateGetStateMessage(t *testing.T) {
 
 	msg, err := GetStateMessage(state)
 	assert.NoError(t, err)
-	assert.Equal(t, msg.Id, "11")
+	assert.Equal(t, msg.Raw.Id, "11")
 }
 
 func TestStateUpdateStateDraft(t *testing.T) {

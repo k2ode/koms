@@ -169,12 +169,9 @@ func (client *client) GetConversationMessages(conversation types.Conversation) (
 
 		for _, messageRaw := range messagesRaw {
 			conversationMessages = append(conversationMessages, types.Message{
-				Id: messageRaw.Id,
+				Raw: messageRaw,
 				From: types.Contact{},
-				Body: messageRaw.Body,
 				Provider: provider.GetId(),
-				Timestamp: messageRaw.Timestamp,
-				Reactions: messageRaw.Reactions,
 			})
 		}
 
@@ -183,7 +180,7 @@ func (client *client) GetConversationMessages(conversation types.Conversation) (
 	}
 
 	sort.Slice(messages, func(p, q int) bool {
-		return messages[p].Timestamp.Before(messages[q].Timestamp)
+		return messages[p].Raw.Timestamp.Before(messages[q].Raw.Timestamp)
 	})
 
 	return messages, nil

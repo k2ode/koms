@@ -29,7 +29,7 @@ func run() {
 
 	container                          := MakeContainer(conversations, messages, inputContainer, preview)
 
-	update := func(newState AppState) {
+	UIUpdate := func(newState AppState) {
 		conversationsUpdate(newState)
 		messagesUpdate(newState)
 		previewUpdate(newState)
@@ -39,7 +39,7 @@ func run() {
 		{ inputUpdate(newState) }
 	}
 
-	updateCache := MakeUpdateCacheFn(client, &state, update)
+	cacheAndUIUpdate := MakeUpdateCacheFn(client, &state, UIUpdate)
 
 	onInputEscape := func(draft string) {
 		state.focusInput = false
@@ -49,7 +49,7 @@ func run() {
 		app.SetFocus(messages)
 	}
 
-	onInputEnter := MakeOnInputEnter(client, &state, updateCache)
+	onInputEnter := MakeOnInputEnter(client, &state, cacheAndUIUpdate)
 
 	doneFn := MakeInputDoneFn(input, onInputEscape, onInputEnter)
 	input.SetDoneFunc(doneFn)
@@ -57,13 +57,13 @@ func run() {
 	autoCompleteFn := MakeAutoCompleteFn()
 	input.SetAutocompleteFunc(autoCompleteFn)
 
-	onKeyDown := MakeOnKeyDown(app, &state, update)
+	onKeyDown := MakeOnKeyDown(app, &state, UIUpdate)
 	messages.SetInputCapture(onKeyDown)
 
 
 	app.SetRoot(container, true)
 
-	updateCache()
+	cacheAndUIUpdate()
 
 
 	if err := app.Run(); err != nil {
@@ -71,7 +71,7 @@ func run() {
 	}
 }
 
-func MakeUpdateCacheFn(client Client, state *AppState, update func(state AppState)) func() {
+func MakeUpdateCacheFn(client Client, state *AppState, updateUI func(state AppState)) UpdateCacheFn {
 	return func() {
 		convos, err := client.GetConversations()
 		if err != nil { panic(err) }
@@ -85,13 +85,18 @@ func MakeUpdateCacheFn(client Client, state *AppState, update func(state AppStat
 			convoState := state.conversations[i]
 			messagePos := len(msgs) - 1
 			convoState.messagePos = messagePos
-			lastMsg := msgs[messagePos]
-			lastMsgProvider := lastMsg.Provider
-			convoState.provider = lastMsgProvider
+			if messagePos != -1 {
+				lastMsg := msgs[messagePos]
+				lastMsgProvider := lastMsg.Provider
+				convoState.provider = lastMsgProvider
+			} else {
+				// this should be the default provider for the (app > contact) w that heiarchy
+				convoState.provider = "ADD DEFAULT"
+			}
 			state.conversations[i] = convoState
 		}
 
-		update(*state)
+		updateUI(*state)
 	}
 }
 

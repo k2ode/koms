@@ -23,16 +23,16 @@ type MessageRaw struct {
 	Body      string
 	Timestamp time.Time
 	Reactions []Reaction
+	Images    []Image
+	URL       string
+	BodyFull  string
 }
 
 type Message struct {
-	Id        string
+	Raw       MessageRaw
 	From      Contact
 	FromUser  bool
-	Body      string
 	Provider  string
-	Timestamp time.Time
-	Reactions []Reaction
 }
 
 type Reaction struct {
@@ -44,4 +44,10 @@ type Contact struct {
 	Id   string
 	Name string
 	Tags []string
+}
+
+type Image struct {
+	URL string
+	Width int
+	Height int
 }

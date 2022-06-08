@@ -19,6 +19,8 @@ const BIND_KEY_BOTTOM = 'G'
 const BIND_KEY_SELECT = 'v'
 const BIND_KEY_QUIT   = 'q'
 const BIND_KEY_CHAT   = '/'
+const BIND_KEY_NEXT   = '.'
+const BIND_KEY_PREV   = ','
 
 
 // Colors
@@ -114,14 +116,23 @@ func ParseConversation(client Client, conversation types.Conversation) string {
 
 func ParseMessage(client Client, conversation ConversationState, message types.Message) string {
 	var prefix string
-	id := message.Provider + message.Id
+	id := message.Provider + message.Raw.Id
 	isSelected := Contains(conversation.selected, id)
 	if isSelected { prefix = "S " }
-	return prefix + message.Provider + ": " + message.Body
+	return prefix + message.Provider + ": " + message.Raw.Body
 }
 
-func GetMessagePreview(message types.Message) string {
-	return message.Body
+type Size struct {
+	x int
+	y int
+	width int
+	height int
+}
+
+func GetMessagePreview(state AppState, size Size) string {
+	msg, err := GetStateMessage(state)
+	if err != nil { return err.Error() }
+	return msg.Raw.Body
 }
 
 func GetProviderDisplay(state AppState) string {
@@ -170,6 +181,21 @@ func UpdateStateFromKeyBind(state AppState, key rune) AppState {
 			state = UpdateStateMessagePosFn(state, fn)
 
 			break
+		case key == BIND_KEY_NEXT || key == BIND_KEY_PREV:
+			msg, err := GetStateMessage(state)
+			if err != nil { break }
+			lenImg := len(msg.Raw.Images)
+			if lenImg == 0 { break }
+
+			var fn func(int) int
+			if key == BIND_KEY_NEXT { fn = MakeInc(lenImg - 1) } else
+			{ fn = MakeDesc(lenImg - 1) }
+
+			state = UpdateStateCarouselSelectedImage(state, fn)
+
+
+
+			break
 		case key == BIND_KEY_CHAT:
 			state.focusInput = true
 			break
@@ -189,7 +215,7 @@ func UpdateStateFromKeyBind(state AppState, key rune) AppState {
 			msg, err := GetStateMessage(state)
 			if err != nil { return state }
 
-			id := msg.Provider + msg.Id
+			id := msg.Provider + msg.Raw.Id
 			state = UpdateStateSelectedToggle(state, id)
 			break
 	}
