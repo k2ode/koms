@@ -14,7 +14,10 @@ import (
 
 type providerIMessage struct {
 	db *sql.DB
+	handles Handles
 }
+
+type Handles map[int]string
 
 func NewProviderIMessage() (Provider, error) {
 	db, err := sql.Open(
@@ -22,7 +25,14 @@ func NewProviderIMessage() (Provider, error) {
 		path.Join(os.Getenv("HOME"), "Library/Messages/chat.db?mode=ro"),
 	)
 	if err != nil { return nil, err }
-	return &providerIMessage{ db }, nil
+
+	provider := &providerIMessage{ db, Handles{} }
+
+	handles, err := provider.getHandles()
+	if err != nil { return nil, err }
+	provider.handles = handles
+
+	return provider, nil
 }
 
 func (provider *providerIMessage) GetId() string {
@@ -31,10 +41,8 @@ func (provider *providerIMessage) GetId() string {
 
 func (provider *providerIMessage) GetConversations() ([]ConversationRaw, error) {
 	rows, err := provider.runSQL(`
-		SELECT chat.ROWID, COALESCE(NULLIF(display_name, ""), handle.id, "Unknown") as display_name, COALESCE(MAX(message.date),0) as last_activity, chat.style
+		SELECT chat.ROWID, display_name, COALESCE(MAX(message.date),0) as last_activity, chat.style
 		FROM chat
-		LEFT JOIN chat_handle_join ON chat.ROWID = chat_handle_join.chat_id
-		LEFT JOIN handle ON chat_handle_join.handle_id = handle.ROWID
 		LEFT JOIN chat_message_join ON chat_message_join.chat_id = chat.ROWID
 		LEFT JOIN message ON chat_message_join.message_id = message.ROWID
 		GROUP BY chat.ROWID
@@ -48,7 +56,7 @@ func (provider *providerIMessage) GetConversations() ([]ConversationRaw, error) 
 
 	for rows.Next() {
 		var id int
-		var displayName string
+		var displayName *string
 		var lastActivity int64
 		var style int64
 
@@ -57,10 +65,17 @@ func (provider *providerIMessage) GetConversations() ([]ConversationRaw, error) 
 
 		isGroupChat := style == 43
 
+		label := ""
+		if displayName != nil { label = *displayName }
+
+		handles, err := provider.getConversationHandles(id)
+		if err != nil { return []ConversationRaw{}, err }
+
 		conversation := ConversationRaw{
 			Id: strconv.Itoa(id),
-			Label: displayName,
+			Label: label,
 			IsGroupChat: isGroupChat,
+			ParticipantIds: handles,
 		}
 
 		conversations = append(conversations, conversation)
@@ -90,4 +105,45 @@ func (provider *providerIMessage) runSQL(query string, args ...interface{}) (*sq
 	defer stmt.Close()
 	
 	return stmt.Query(args...)
+}
+
+func (provider *providerIMessage) getHandles() (Handles, error) {
+	rows, err := provider.runSQL(`SELECT ROWID, id FROM handle`)
+	if err != nil { return nil, err }
+	defer rows.Close()
+
+	handles := Handles{}
+
+	for rows.Next() {
+		var rowId int
+		var id string
+
+		err = rows.Scan(&rowId, &id)
+		if err != nil { return nil, err }
+
+		handles[rowId] = id
+	}
+
+	return handles, nil
+}
+
+func (provider *providerIMessage) getConversationHandles(id int) ([]string, error) {
+	rows, err := provider.runSQL(`SELECT handle_id FROM chat_handle_join WHERE chat_id == ?`, id)
+	if err != nil { return nil, err }
+	defer rows.Close()
+
+	handles := []string{}
+
+	for rows.Next() {
+		var id int
+
+		err = rows.Scan(&id)
+		if err != nil { return nil, err }
+
+		handle, exists := provider.handles[id]
+		if !exists { handle = "unknown" }
+		handles = append(handles, handle)
+	}
+
+	return handles, nil
 }
