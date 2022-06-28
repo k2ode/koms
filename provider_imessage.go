@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"os"
+	"os/exec"
 	"path"
 	"strings"
 	"time"
@@ -32,13 +33,6 @@ const (
 	REACTION_EMOJI_QUESTION  = "❓"
 )
 
-const sendMessageApplescript = `
-on run {msgText, handleId, serviceId}
-	tell application "Messages"
-		send msgText to buddy handleId of service id serviceId
-	end tell
-end run
-`
 
 type providerIMessage struct {
 	db *sql.DB
@@ -203,9 +197,18 @@ func (provider *providerIMessage) GetConversationMessages(id string) ([]MessageR
 	return messages, nil
 }
 
+const sendMessageApplescript = `
+on run {msgText, guid}
+	tell application "Messages"
+		set theBuddy to a reference to chat id guid
+		send msgText to theBuddy
+	end tell
+end run
+`
+
 func (provider *providerIMessage) SendMessage(id string, body string) error {
-	
-	return nil
+	cmd := exec.Command("osascript", "-e", sendMessageApplescript, body, id)
+	return cmd.Run()
 }
 
 func (provider *providerIMessage) Sync() error {
