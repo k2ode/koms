@@ -5,6 +5,7 @@ import (
 	"os"
 	"path"
 	"strconv"
+	"strings"
 	"time"
 
 	. "github.com/k2on/koms/types"
@@ -12,6 +13,15 @@ import (
 	// sqlite3 required to parse messages database
 	_ "github.com/mattn/go-sqlite3"
 )
+
+const (
+	REACTION_EMOJI_LOVE = "❤️"
+	REACTION_EMOJI_LIKE = "👍"
+	REACTION_EMOJI_DISLIKE = "👎"
+	REACTION_EMOJI_EMPHASIZE = "‼️"
+	REACTION_EMOJI_LAUGH = "😂"
+)
+
 
 type providerIMessage struct {
 	db *sql.DB
@@ -88,7 +98,8 @@ func (provider *providerIMessage) GetConversations() ([]ConversationRaw, error) 
 
 
 func (provider *providerIMessage) GetConversationMessages(id string) ([]MessageRaw, error) {
-	rows, err := provider.runSQL(`SELECT message.ROWID, message.date, message.text FROM message
+	rows, err := provider.runSQL(`SELECT message.guid, message.date, message.text, message.handle_id, message.is_from_me, message.associated_message_guid, message.associated_message_type
+	FROM message
 	LEFT JOIN "chat_message_join" ON message.ROWID = "chat_message_join"."message_id"
 	WHERE "chat_message_join"."chat_id" = ?
 	ORDER BY date DESC
@@ -98,25 +109,72 @@ func (provider *providerIMessage) GetConversationMessages(id string) ([]MessageR
 
 	messages := []MessageRaw{}
 
+	var msgPos int
+	idMap := make(map[string]int)
+	type MessageMeta struct { reactions []Reaction }
+	metaMessages := make(map[string]MessageMeta)
+
+
 	for rows.Next() {
-		var id int
+		var id string
 		var timestamp int64
 		var text *string
+		var handle_id int
+		var from_me bool
+		var associated_message_id *string
+		var associated_message_type int
 
-		err = rows.Scan(&id, &timestamp, &text)
+		err = rows.Scan(&id, &timestamp, &text, &handle_id, &from_me, &associated_message_id, &associated_message_type)
 		if err != nil { return nil, err }
+
+		var from string
+		if from_me { from = "me" } else
+		{ from = provider.handles[handle_id] }
+
+		if associated_message_type != 0 {
+			if associated_message_id == nil { panic("associated message type is not 0 but message guid is null") }
+
+			messageId := strings.Split(*associated_message_id, "p:0/")[1]
+			messageMeta, exists := metaMessages[messageId]
+			if !exists {
+				messageMeta = MessageMeta{[]Reaction{}}
+			}
+			messageMeta.reactions = append(messageMeta.reactions, Reaction{
+				Emoji: getEmojiFromReactionType(associated_message_type),
+				From: from,
+			})
+			metaMessages[messageId] = messageMeta
+
+			continue
+		}
+
+		idMap[id] = msgPos
+		msgPos++
 
 		body := ""
 		if text != nil { body = *text }
 
+
+
 		message := MessageRaw{
-			Id: strconv.Itoa(id),
+			Id: id,
 			Body: body,
 			Timestamp: cocoaTimestampToTime(timestamp),
-			From: "me",
+			From: from,
+			Reactions: []Reaction{},
 		}
 
 		messages = append(messages, message)
+	}
+
+
+	for messageId, meta := range metaMessages {
+		pos := idMap[messageId]
+		msg := messages[pos]
+		for _, reaction := range meta.reactions {
+			msg.Reactions = append(msg.Reactions, reaction)
+		}
+		messages[pos] = msg
 	}
 
 	return messages, nil
@@ -192,4 +250,17 @@ func cocoaTimestampToTime(timestamp int64) time.Time {
 	}
 
 	return time.Unix(timestamp+cocoaUnixEpocDiff, 0)
+}
+
+func getEmojiFromReactionType(reaction int) string {
+	reactionEmojiMap := map[int]string{
+		2000: REACTION_EMOJI_LOVE,
+		2001: REACTION_EMOJI_LIKE,
+		2002: REACTION_EMOJI_DISLIKE,
+		2003: REACTION_EMOJI_LAUGH,
+		2004: REACTION_EMOJI_EMPHASIZE,
+	}
+	emoji, exists := reactionEmojiMap[reaction]
+	if !exists { return "?" }
+	return emoji
 }
