@@ -13,6 +13,8 @@ func TestProviderIMessage(t *testing.T) {
 
 	convo, err := provider.GetConversations()
 
-	fmt.Println(convo)
+	msg, err := provider.GetConversationMessages(convo[3].Id)
+
+	fmt.Println(msg)
 	fmt.Println(err)
 }

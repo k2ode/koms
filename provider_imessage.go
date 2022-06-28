@@ -5,6 +5,7 @@ import (
 	"os"
 	"path"
 	"strconv"
+	"time"
 
 	. "github.com/k2on/koms/types"
 
@@ -76,6 +77,7 @@ func (provider *providerIMessage) GetConversations() ([]ConversationRaw, error) 
 			Label: label,
 			IsGroupChat: isGroupChat,
 			ParticipantIds: handles,
+			Provider: provider.GetId(),
 		}
 
 		conversations = append(conversations, conversation)
@@ -86,7 +88,38 @@ func (provider *providerIMessage) GetConversations() ([]ConversationRaw, error) 
 
 
 func (provider *providerIMessage) GetConversationMessages(id string) ([]MessageRaw, error) {
-	return []MessageRaw{}, nil
+	rows, err := provider.runSQL(`SELECT message.ROWID, message.date, message.text FROM message
+	LEFT JOIN "chat_message_join" ON message.ROWID = "chat_message_join"."message_id"
+	WHERE "chat_message_join"."chat_id" = ?
+	ORDER BY date DESC
+	LIMIT 20`, id)
+	if err != nil { return nil, err }
+	defer rows.Close()
+
+	messages := []MessageRaw{}
+
+	for rows.Next() {
+		var id int
+		var timestamp int64
+		var text *string
+
+		err = rows.Scan(&id, &timestamp, &text)
+		if err != nil { return nil, err }
+
+		body := ""
+		if text != nil { body = *text }
+
+		message := MessageRaw{
+			Id: strconv.Itoa(id),
+			Body: body,
+			Timestamp: cocoaTimestampToTime(timestamp),
+			From: "me",
+		}
+
+		messages = append(messages, message)
+	}
+
+	return messages, nil
 }
 
 func (provider *providerIMessage) SendMessage(id string, body string) error {
@@ -146,4 +179,17 @@ func (provider *providerIMessage) getConversationHandles(id int) ([]string, erro
 	}
 
 	return handles, nil
+}
+
+const cocoaUnixEpocDiff int64 = 978285600
+const nanosecondsInSecond int64 = 1000000000
+
+func cocoaTimestampToTime(timestamp int64) time.Time {
+	if timestamp > 1000000000000 {
+		// If timestamp is bigger than 1000000000000 we can safely assume it's in nanoseconds
+		// Older versions of macos use seconds, newer use nanoseconds
+		timestamp = timestamp / nanosecondsInSecond
+	}
+
+	return time.Unix(timestamp+cocoaUnixEpocDiff, 0)
 }
