@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"os"
 	"path"
-	"strconv"
 	"strings"
 	"time"
 
@@ -13,6 +12,9 @@ import (
 	// sqlite3 required to parse messages database
 	_ "github.com/mattn/go-sqlite3"
 )
+
+const cocoaUnixEpocDiff int64 = 978285600
+const nanosecondsInSecond int64 = 1000000000
 
 const (
 	REACTION_TYPE_LOVE      = 2000
@@ -30,10 +32,18 @@ const (
 	REACTION_EMOJI_QUESTION  = "❓"
 )
 
+const sendMessageApplescript = `
+on run {msgText, handleId, serviceId}
+	tell application "Messages"
+		send msgText to buddy handleId of service id serviceId
+	end tell
+end run
+`
 
 type providerIMessage struct {
 	db *sql.DB
 	handles Handles
+	rowIds map[string]int
 }
 
 type Handles map[int]string
@@ -45,7 +55,7 @@ func NewProviderIMessage() (Provider, error) {
 	)
 	if err != nil { return nil, err }
 
-	provider := &providerIMessage{ db, Handles{} }
+	provider := &providerIMessage{ db, Handles{}, make(map[string]int) }
 
 	handles, err := provider.getHandles()
 	if err != nil { return nil, err }
@@ -60,7 +70,7 @@ func (provider *providerIMessage) GetId() string {
 
 func (provider *providerIMessage) GetConversations() ([]ConversationRaw, error) {
 	rows, err := provider.runSQL(`
-		SELECT chat.ROWID, display_name, COALESCE(MAX(message.date),0) as last_activity, chat.style
+		SELECT chat.guid, chat.ROWID, display_name, COALESCE(MAX(message.date),0) as last_activity, chat.style
 		FROM chat
 		LEFT JOIN chat_message_join ON chat_message_join.chat_id = chat.ROWID
 		LEFT JOIN message ON chat_message_join.message_id = message.ROWID
@@ -74,12 +84,13 @@ func (provider *providerIMessage) GetConversations() ([]ConversationRaw, error) 
 	conversations := []ConversationRaw{}
 
 	for rows.Next() {
-		var id int
+		var guid string
+		var rowId int
 		var displayName *string
 		var lastActivity int64
 		var style int64
 
-		err = rows.Scan(&id, &displayName, &lastActivity, &style)
+		err = rows.Scan(&guid, &rowId, &displayName, &lastActivity, &style)
 		if err != nil { return []ConversationRaw{}, err }
 
 		isGroupChat := style == 43
@@ -87,11 +98,12 @@ func (provider *providerIMessage) GetConversations() ([]ConversationRaw, error) 
 		label := ""
 		if displayName != nil { label = *displayName }
 
-		handles, err := provider.getConversationHandles(id)
+		handles, err := provider.getConversationHandles(rowId)
 		if err != nil { return []ConversationRaw{}, err }
 
+		provider.rowIds[guid] = rowId
 		conversation := ConversationRaw{
-			Id: strconv.Itoa(id),
+			Id: guid,
 			Label: label,
 			IsGroupChat: isGroupChat,
 			ParticipantIds: handles,
@@ -106,12 +118,15 @@ func (provider *providerIMessage) GetConversations() ([]ConversationRaw, error) 
 
 
 func (provider *providerIMessage) GetConversationMessages(id string) ([]MessageRaw, error) {
+	rowId, exists := provider.rowIds[id]
+	if !exists { panic("rowId does not exist") }
+
 	rows, err := provider.runSQL(`SELECT message.guid, message.date, message.text, message.handle_id, message.is_from_me, message.associated_message_guid, message.associated_message_type
 	FROM message
 	LEFT JOIN "chat_message_join" ON message.ROWID = "chat_message_join"."message_id"
 	WHERE "chat_message_join"."chat_id" = ?
 	ORDER BY date DESC
-	LIMIT 20`, id)
+	LIMIT 20`, rowId)
 	if err != nil { return nil, err }
 	defer rows.Close()
 
@@ -189,6 +204,7 @@ func (provider *providerIMessage) GetConversationMessages(id string) ([]MessageR
 }
 
 func (provider *providerIMessage) SendMessage(id string, body string) error {
+	
 	return nil
 }
 
@@ -226,8 +242,8 @@ func (provider *providerIMessage) getHandles() (Handles, error) {
 	return handles, nil
 }
 
-func (provider *providerIMessage) getConversationHandles(id int) ([]string, error) {
-	rows, err := provider.runSQL(`SELECT handle_id FROM chat_handle_join WHERE chat_id == ?`, id)
+func (provider *providerIMessage) getConversationHandles(rowId int) ([]string, error) {
+	rows, err := provider.runSQL(`SELECT handle_id FROM chat_handle_join WHERE chat_id == ?`, rowId)
 	if err != nil { return nil, err }
 	defer rows.Close()
 
@@ -247,8 +263,6 @@ func (provider *providerIMessage) getConversationHandles(id int) ([]string, erro
 	return handles, nil
 }
 
-const cocoaUnixEpocDiff int64 = 978285600
-const nanosecondsInSecond int64 = 1000000000
 
 func cocoaTimestampToTime(timestamp int64) time.Time {
 	if timestamp > 1000000000000 {
