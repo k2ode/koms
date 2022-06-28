@@ -15,11 +15,19 @@ import (
 )
 
 const (
-	REACTION_EMOJI_LOVE = "❤️"
-	REACTION_EMOJI_LIKE = "👍"
-	REACTION_EMOJI_DISLIKE = "👎"
+	REACTION_TYPE_LOVE      = 2000
+	REACTION_TYPE_LIKE      = 2001
+	REACTION_TYPE_DISLIKE   = 2002
+	REACTION_TYPE_LAUGH     = 2003
+	REACTION_TYPE_EMPHASIZE = 2004
+	REACTION_TYPE_QUESTION  = 2005
+
+	REACTION_EMOJI_LOVE      = "❤️"
+	REACTION_EMOJI_LIKE      = "👍"
+	REACTION_EMOJI_DISLIKE   = "👎"
+	REACTION_EMOJI_LAUGH     = "😂"
 	REACTION_EMOJI_EMPHASIZE = "‼️"
-	REACTION_EMOJI_LAUGH = "😂"
+	REACTION_EMOJI_QUESTION  = "❓"
 )
 
 
@@ -131,10 +139,10 @@ func (provider *providerIMessage) GetConversationMessages(id string) ([]MessageR
 		if from_me { from = "me" } else
 		{ from = provider.handles[handle_id] }
 
-		if associated_message_type != 0 {
+		if associated_message_type >= REACTION_TYPE_LOVE {
 			if associated_message_id == nil { panic("associated message type is not 0 but message guid is null") }
 
-			messageId := strings.Split(*associated_message_id, "p:0/")[1]
+			messageId := extractMessageId(*associated_message_id)
 			messageMeta, exists := metaMessages[messageId]
 			if !exists {
 				messageMeta = MessageMeta{[]Reaction{}}
@@ -254,13 +262,22 @@ func cocoaTimestampToTime(timestamp int64) time.Time {
 
 func getEmojiFromReactionType(reaction int) string {
 	reactionEmojiMap := map[int]string{
-		2000: REACTION_EMOJI_LOVE,
-		2001: REACTION_EMOJI_LIKE,
-		2002: REACTION_EMOJI_DISLIKE,
-		2003: REACTION_EMOJI_LAUGH,
-		2004: REACTION_EMOJI_EMPHASIZE,
+		REACTION_TYPE_LOVE: REACTION_EMOJI_LOVE,
+		REACTION_TYPE_LIKE: REACTION_EMOJI_LIKE,
+		REACTION_TYPE_DISLIKE: REACTION_EMOJI_DISLIKE,
+		REACTION_TYPE_LAUGH: REACTION_EMOJI_LAUGH,
+		REACTION_TYPE_EMPHASIZE: REACTION_EMOJI_EMPHASIZE,
+		REACTION_TYPE_QUESTION: REACTION_EMOJI_QUESTION,
 	}
 	emoji, exists := reactionEmojiMap[reaction]
 	if !exists { return "?" }
 	return emoji
+}
+
+func extractMessageId(id string) string {
+	messageId := strings.Split(id, "/")
+	if len(messageId) == 2 { return messageId[1] }
+	messageId = strings.Split(id, ":")
+	if len(messageId) == 2 { return messageId[1] }
+	return id
 }
