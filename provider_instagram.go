@@ -42,7 +42,7 @@ type InstagramThread struct {
 	Id                string               `json:"thread_id"`
 	IdV2              string               `json:"thread_v2_id"`
 	Users             []InstagramUser      `json:"users"`
-	LastActivityAt    int                  `json:"last_activity_at"`
+	LastActivityAt    int64                `json:"last_activity_at"`
 	Muted             bool                 `json:"muted"`
 	Archived          bool                 `json:"archived"`
 	OldestCursor      string               `json:"oldest_cursor"`
@@ -249,6 +249,7 @@ func (provider *providerIG) GetConversations() ([]ConversationRaw, error) {
 			IsGroupChat: thread.IsGroup,
 			Label: label,
 			Provider: provider.GetId(),
+			LastActivity: time.UnixMicro(thread.LastActivityAt),
 		}
 
 		provider.CacheConversations[thread.Id] = ParseMsgs(thread.Items)
