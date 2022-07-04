@@ -208,7 +208,8 @@ end run
 
 func (provider *providerIMessage) SendMessage(id string, body string) error {
 	cmd := exec.Command("osascript", "-e", sendMessageApplescript, body, id)
-	return cmd.Run()
+	cmd.Run()
+	return nil
 }
 
 func (provider *providerIMessage) Sync() error {
