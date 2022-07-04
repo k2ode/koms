@@ -28,6 +28,7 @@ func NewProviderMockA() (Provider, error) {
 					IsGroupChat: false,
 					ParticipantIds: []string{"a:0"},
 					Provider: "a",
+					LastActivity: time.Unix(200, 0),
 				},
 				messages: []MessageRaw{
 					{
@@ -52,6 +53,7 @@ func NewProviderMockA() (Provider, error) {
 					IsGroupChat: true,
 					ParticipantIds: []string{"a:0", "a:1"},
 					Provider: "a",
+					LastActivity: time.Unix(400, 0),
 				},
 				messages: []MessageRaw{
 					{
@@ -65,7 +67,7 @@ func NewProviderMockA() (Provider, error) {
 						Id: "1",
 						From: "a:1",
 						Body: "你好世界!",
-						Timestamp: time.Unix(300, 0),
+						Timestamp: time.Unix(400, 0),
 						Reactions: []Reaction{},
 					},
 				},
@@ -84,6 +86,7 @@ func NewProviderMockB() (Provider, error) {
 					IsGroupChat: false,
 					ParticipantIds: []string{"b:0"},
 					Provider: "b",
+					LastActivity: time.Unix(300, 0),
 				},
 				messages: []MessageRaw{
 					{

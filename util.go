@@ -1,6 +1,11 @@
 package main
 
-import "strings"
+import (
+	"strings"
+	"time"
+
+	"github.com/k2on/koms/types"
+)
 
 func Lines(str string) []string {
 	return strings.Split(str, "\n")
@@ -46,4 +51,16 @@ func Find(haystack []string, needle string) int {
 		return index
 	}
 	return -1
+}
+
+func GetLastActivity(conversation types.Conversation) time.Time {
+	base := time.Unix(0, 0)
+	if len(conversation.Conversations) == 0 { return base }
+	last := base
+
+	for _, convo := range conversation.Conversations {
+		if convo.LastActivity.After(last) { last = convo.LastActivity }
+	}
+
+	return last
 }

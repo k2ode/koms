@@ -80,7 +80,7 @@ func TestClientMockABContact(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, len(conversations), 2)
 
-	conversation := conversations[0]
+	conversation := conversations[1]
 	messages, err := client.GetConversationMessages(conversation)
 
 	assert.Equal(t, len(messages), 4)

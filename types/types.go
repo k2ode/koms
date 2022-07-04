@@ -15,6 +15,7 @@ type ConversationRaw struct {
 	IsGroupChat    bool
 	Label          string
 	Provider       string
+	LastActivity   time.Time
 }
 
 type MessageRaw struct {
