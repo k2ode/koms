@@ -2,7 +2,9 @@ package main
 
 import (
 	"testing"
+	"time"
 
+	"github.com/k2on/koms/types"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -59,6 +61,17 @@ func TestUtilMakeDescBy(t *testing.T) {
 
 	assert.Equal(t, desc(2), 0)
 	assert.Equal(t, desc(1), 0)
+}
+
+func TestUtilGetLastActivity(t *testing.T) {
+	convo := types.Conversation{
+		Conversations: []types.ConversationRaw{
+			{ LastActivity: time.Unix(1000, 0) },
+			{ LastActivity: time.Unix(2000, 0) },
+			{ LastActivity: time.Unix(3000, 0) },
+		},
+	}
+	assert.Equal(t, GetLastActivity(convo), time.Unix(3000, 0))
 }
 
 // func TestUtilFind(t *testing.T) {
