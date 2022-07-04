@@ -79,6 +79,11 @@ func UpdateStateConversationState(state AppState, fn func(ConversationState) Con
 	return state
 }
 
+func UpdateStateConversationPos(state AppState, pos int) AppState {
+	state.pos = pos
+	return state
+}
+
 func UpdateStateDraft(state AppState, draft string) AppState {
 	return UpdateStateConversationState(state, func(convo ConversationState) ConversationState {
 		convo.draft = draft

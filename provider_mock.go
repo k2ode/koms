@@ -132,11 +132,14 @@ func (providerMock *providerMock) GetConversationMessages(id string) ([]MessageR
 func (providerMock *providerMock) SendMessage(id string, body string) error {
 	for i, cp := range providerMock.conversations {
 		if cp.meta.Id != id { continue }
+		timestamp := time.Now()
+
+		providerMock.conversations[i].meta.LastActivity = timestamp
 		providerMock.conversations[i].messages = append(providerMock.conversations[i].messages, MessageRaw{
 			Id: "0",
 			From: USER,
 			Body: body,
-			Timestamp: time.Now(),
+			Timestamp: timestamp,
 			Reactions: []Reaction{},
 		})
 		

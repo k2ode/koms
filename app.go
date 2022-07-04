@@ -113,6 +113,7 @@ func MakeOnInputEnter(client Client, state *AppState, updateCache UpdateCacheFn)
 
 		msgs, _ := GetCacheMessages(*state)
 		newMsgPos := len(msgs)
+		*state = UpdateStateConversationPos(*state, 0)
 		*state = UpdateStateMessagePos(*state, newMsgPos)
 
 		updateCache()

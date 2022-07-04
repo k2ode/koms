@@ -108,4 +108,10 @@ func TestProviderMockSendMessage(t *testing.T) {
 
 	messageSent := messages[2]
 	assert.Equal(t, messageSent.Body, "what is a foo bar")
+	
+	convos, err := provider.GetConversations()
+	assert.NoError(t, err, "Getting conversations after sending a message should not return an error")
+
+	firstConvo := convos[0]
+	assert.NotEqual(t, firstConvo.LastActivity.Unix(), int64(200))
 }
