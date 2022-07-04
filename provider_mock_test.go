@@ -85,7 +85,7 @@ func TestProviderMockConversationMessageGroupChat(t *testing.T) {
 	assert.Equal(t, unicodeMessage.Id, "1")
 	assert.Equal(t, unicodeMessage.From, "a:1")
 	assert.Equal(t, unicodeMessage.Body, "你好世界!")
-	assert.Equal(t, unicodeMessage.Timestamp, time.Unix(300, 0))
+	assert.Equal(t, unicodeMessage.Timestamp, time.Unix(400, 0))
 	assert.Equal(t, unicodeMessage.Reactions, []types.Reaction{})
 	// assert.Equal(t, unicodeMessage.provider, "a")
 }

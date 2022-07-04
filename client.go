@@ -142,6 +142,11 @@ func (client *client) GetConversations() ([]types.Conversation, error) {
 		conversations[convPos].Conversations = append(conversations[convPos].Conversations, conversation)
 	}
 
+
+	sort.Slice(conversations, func(p, q int) bool {
+		return GetLastActivity(conversations[p]).After(GetLastActivity(conversations[q]))
+	})
+
 	return conversations, nil
 }
 
