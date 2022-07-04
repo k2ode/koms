@@ -102,6 +102,7 @@ func (provider *providerIMessage) GetConversations() ([]ConversationRaw, error) 
 			IsGroupChat: isGroupChat,
 			ParticipantIds: handles,
 			Provider: provider.GetId(),
+			LastActivity: cocoaTimestampToTime(lastActivity),
 		}
 
 		conversations = append(conversations, conversation)
