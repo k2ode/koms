@@ -25,15 +25,19 @@ func run() {
 	input,         inputUpdate         := MakeInput(state)
 
 	providerDisplay, providerUpdate := MakeProviderDisplay(state)
-	inputContainer, _ := MakeContainerInput(state, input, providerDisplay)
+	inputContainer, _               := MakeContainerInput(state, input, providerDisplay)
 
 	container                          := MakeContainer(conversations, messages, inputContainer, preview)
+
+	pages := tview.NewPages()
 
 	UIUpdate := func(newState AppState) {
 		conversationsUpdate(newState)
 		messagesUpdate(newState)
 		previewUpdate(newState)
 		providerUpdate(newState)
+
+		if newState.search.open { pages.ShowPage("search") }
 
 		if newState.focusInput { app.SetFocus(input) } else
 		{ inputUpdate(newState) }
@@ -60,8 +64,14 @@ func run() {
 	onKeyDown := MakeOnKeyDown(app, &state, UIUpdate)
 	messages.SetInputCapture(onKeyDown)
 
+	search, _ := MakeSearch(app, &state)
 
-	app.SetRoot(container, true)
+	pages.
+		AddPage("container", container, true, true).
+		AddPage("search", search, true, false)
+
+
+	app.SetRoot(pages, true)
 
 	cacheAndUIUpdate()
 
@@ -122,7 +132,8 @@ func MakeOnInputEnter(client Client, state *AppState, updateCache UpdateCacheFn)
 }
 
 type OnKeyDownFn = func(*tcell.EventKey) *tcell.EventKey
-func MakeOnKeyDown(app *tview.Application, state *AppState, update func(AppState)) OnKeyDownFn {
+type UpdateFn = func(AppState)
+func MakeOnKeyDown(app *tview.Application, state *AppState, update UpdateFn) OnKeyDownFn {
 	return func(event *tcell.EventKey) *tcell.EventKey {
 		newState := UpdateStateFromKeyBind(*state, event.Rune())
 		if newState.quit { app.Stop() }

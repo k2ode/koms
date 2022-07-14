@@ -13,6 +13,18 @@ type AppState struct {
 	focusInput    bool
 	jumpBy        int
 	quit          bool
+	search        SearchQuery
+}
+
+type SearchQuery struct {
+	open bool
+	participants []SearchQueryParticipant
+	participantPos int
+	focusInput bool
+}
+
+type SearchQueryParticipant struct {
+	name string
 }
 
 type ConversationState struct {
@@ -144,4 +156,10 @@ func UpdateStateSelectedToggle(state AppState, toggledId string) AppState {
 		if !removed { result = append(result, toggledId) }
 		return result
 	})
+}
+
+func UpdateStateSearchFilterPosFn(state AppState, fn IntMod) AppState {
+	pos := state.search.participantPos
+	state.search.participantPos = fn(pos)
+	return state 
 }

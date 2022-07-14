@@ -42,6 +42,14 @@ func MakeMockState() AppState {
 		selected: []string{},
 	}
 
+	state.search = SearchQuery{
+		participantPos: 0,
+		participants: []SearchQueryParticipant{
+			{ "John Doe" },
+			{ "Jane Doe" },
+		},
+	}
+
 	return state
 }
 

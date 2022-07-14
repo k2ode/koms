@@ -2,7 +2,6 @@ package main
 
 import (
 	"strings"
-	"unicode"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/k2on/koms/types"
@@ -19,6 +18,7 @@ const BIND_KEY_BOTTOM = 'G'
 const BIND_KEY_SELECT = 'v'
 const BIND_KEY_QUIT   = 'q'
 const BIND_KEY_CHAT   = '/'
+const BIND_KEY_SEARCH = 's'
 const BIND_KEY_NEXT   = '.'
 const BIND_KEY_PREV   = ','
 
@@ -88,6 +88,8 @@ func GetClient() (Client, error) {
 	providerMockB, err := NewProviderMockB()
 	if err != nil { return nil, err }
 
+	// imess, _ := NewProviderIMessage()
+
 	providers := []Provider{
 		providerMockA,
 		providerMockB,
@@ -110,6 +112,8 @@ func ParseConversation(client Client, conversation types.Conversation) string {
 
 	if conversation.Label != "" { result = conversation.Label } else
 	{ result = parseIds(conversation.ContactIds) }
+
+	result += " - " + GetLastActivity(conversation).Local().String()
 
 	return result
 }
@@ -141,88 +145,77 @@ func GetProviderDisplay(state AppState) string {
 }
 
 func UpdateStateFromKeyBind(state AppState, key rune) AppState {
-	switch {
-		case key == BIND_KEY_TOP || key == BIND_KEY_BOTTOM:
-			var messagePos int
-
-			if key == BIND_KEY_BOTTOM {
-				msgs, exists := GetCacheMessages(state)
-				if !exists { return state }
-				maxMsgs := len(msgs) - 1
-				messagePos = maxMsgs
-			}
-
-			state = UpdateStateMessagePos(state, messagePos)
-
-			break
-		case key == BIND_KEY_LEFT || key == BIND_KEY_RIGHT:
-			maxConvos := len(state.cache.conversations) - 1
-
-			var fn func(int) int
-			if key == BIND_KEY_RIGHT { fn = MakeInc(maxConvos) } else
-			{ fn = MakeDesc(maxConvos) }
-
-			state.pos = fn(state.pos)
-
-			break
-		case key == BIND_KEY_UP || key == BIND_KEY_DOWN:
-			msgs, exists := GetCacheMessages(state)
-			if !exists { return state }
-			maxMsgs := len(msgs) - 1
-
-			jumpBy := state.jumpBy
-			if jumpBy == -1 { jumpBy = 1 }
-			state.jumpBy = -1
-
-			var fn func(int) int
-			if key == BIND_KEY_DOWN { fn = MakeIncBy(maxMsgs, jumpBy) } else
-			{ fn = MakeDescBy(maxMsgs, jumpBy) }
-
-			state = UpdateStateMessagePosFn(state, fn)
-
-			break
-		case key == BIND_KEY_NEXT || key == BIND_KEY_PREV:
-			msg, err := GetStateMessage(state)
-			if err != nil { break }
-			lenImg := len(msg.Raw.Images)
-			if lenImg == 0 { break }
-
-			var fn func(int) int
-			if key == BIND_KEY_NEXT { fn = MakeInc(lenImg - 1) } else
-			{ fn = MakeDesc(lenImg - 1) }
-
-			state = UpdateStateCarouselSelectedImage(state, fn)
-
-
-
-			break
-		case key == BIND_KEY_CHAT:
-			state.focusInput = true
-			break
-		case key == BIND_KEY_QUIT:
-			state.quit = true
-			break
-		case unicode.IsDigit(key):
-			var jumpBy int
-			numb := int(key - '0')
-
-			if state.jumpBy == -1 { jumpBy = numb } else
-			{ jumpBy = state.jumpBy * 10 + numb }
-
-			state.jumpBy = jumpBy
-			break
-		case key == BIND_KEY_SELECT:
-			msg, err := GetStateMessage(state)
-			if err != nil { return state }
-
-			id := msg.Provider + msg.Raw.Id
-			state = UpdateStateSelectedToggle(state, id)
-			break
+	getSize := func() int { 
+		msgs, exists := GetCacheMessages(state)
+		if !exists { return -1 }
+		return len(msgs) - 1
 	}
+	setPosition := func(state AppState, fn IntMod) AppState {
+		return UpdateStateMessagePosFn(state, fn)
+	}
+	fallback := func(state AppState, key rune) AppState {
+		switch {
+			case key == BIND_KEY_LEFT || key == BIND_KEY_RIGHT:
+				maxConvos := len(state.cache.conversations) - 1
+
+				var fn func(int) int
+				if key == BIND_KEY_RIGHT { fn = MakeInc(maxConvos) } else
+				{ fn = MakeDesc(maxConvos) }
+
+				state.pos = fn(state.pos)
+
+				break
+			case key == BIND_KEY_NEXT || key == BIND_KEY_PREV:
+				msg, err := GetStateMessage(state)
+				if err != nil { break }
+				lenImg := len(msg.Raw.Images)
+				if lenImg == 0 { break }
+
+				var fn func(int) int
+				if key == BIND_KEY_NEXT { fn = MakeInc(lenImg - 1) } else
+				{ fn = MakeDesc(lenImg - 1) }
+
+				state = UpdateStateCarouselSelectedImage(state, fn)
+				break
+			case key == BIND_KEY_CHAT:
+				state.focusInput = true
+				break
+			case key == BIND_KEY_QUIT:
+				state.quit = true
+				break
+			case key == BIND_KEY_SELECT:
+				msg, err := GetStateMessage(state)
+				if err != nil { return state }
+
+				id := msg.Provider + msg.Raw.Id
+				state = UpdateStateSelectedToggle(state, id)
+				break
+			case key == BIND_KEY_SEARCH:
+				state.search.open = true
+				break
+		}
+		return state
+	}
+	state = VerticleListKeyBinds(state, key, getSize, setPosition, fallback)
 
 	msg, err := GetStateMessage(state)
 	if err == nil { state = UpdateStateProvider(state, msg.Provider) }
 
+	return state
+}
+
+func UpdateStateSearchFromKeyBind(state AppState, key rune) AppState {
+	getSize := func() int {
+		return len(state.search.participants) - 1
+	}
+	setPosition := func(state AppState, fn IntMod) AppState {
+		return UpdateStateSearchFilterPosFn(state, fn)
+	}
+	fallback := func(state AppState, key rune) AppState {
+		return state
+	}
+	state = VerticleListKeyBinds(state, key, getSize, setPosition, fallback)
+	
 	return state
 }
 

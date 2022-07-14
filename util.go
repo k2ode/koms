@@ -3,8 +3,10 @@ package main
 import (
 	"strings"
 	"time"
+	"unicode"
 
 	"github.com/k2on/koms/types"
+	"github.com/rivo/tview"
 )
 
 func Lines(str string) []string {
@@ -63,4 +65,51 @@ func GetLastActivity(conversation types.Conversation) time.Time {
 	}
 
 	return last
+}
+
+func Modal(primative tview.Primitive, width, height int) *tview.Grid {
+	grid := tview.NewGrid().
+		SetColumns(0, width, 0).
+		SetRows(0, height, 0).
+		AddItem(primative, 1, 1, 1, 1, 0, 0, true)
+	return grid
+}
+
+type SetPositionFn = func(state AppState, fn IntMod) AppState
+type FallbackFn = func(state AppState, key rune) AppState
+func VerticleListKeyBinds(state AppState, key rune, getSize func() int, setPosition SetPositionFn, fallback FallbackFn) AppState {
+	switch {
+		case key == BIND_KEY_TOP || key == BIND_KEY_BOTTOM:
+			var messagePos int
+			if key == BIND_KEY_BOTTOM { messagePos = getSize() }
+
+			state = setPosition(state, func(_ int) int { return messagePos})
+			break
+		case key == BIND_KEY_UP || key == BIND_KEY_DOWN:
+			size := getSize()
+
+			jumpBy := state.jumpBy
+			if jumpBy == -1 { jumpBy = 1 }
+			state.jumpBy = -1
+
+			var fn func(int) int
+			if key == BIND_KEY_DOWN { fn = MakeIncBy(size, jumpBy) } else
+			{ fn = MakeDescBy(size, jumpBy) }
+
+			state = setPosition(state, fn)
+			break
+		case unicode.IsDigit(key):
+			var jumpBy int
+			numb := int(key - '0')
+
+			if state.jumpBy == -1 { jumpBy = numb } else
+			{ jumpBy = state.jumpBy * 10 + numb }
+
+			state.jumpBy = jumpBy
+			break
+		default:
+			state = fallback(state, key)
+	}
+
+	return state
 }
