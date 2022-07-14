@@ -29,7 +29,7 @@ func MakeSearch(app *tview.Application, state *AppState) (ComponentSearch, Updat
 
 
 	update := func(state AppState) {
-		participantLen := len(state.search.participants)
+		participantLen := len(state.search.filters)
 		height := participantLen + 3
 		search.SetRows(0, height, 0)
 		updateParticipants(state)
@@ -38,15 +38,12 @@ func MakeSearch(app *tview.Application, state *AppState) (ComponentSearch, Updat
 
 	onEscape := func(s string) {
 		app.SetFocus(participants)
-		// searchContainer.RemoveItem(searchInput)
-
-		// update(*state)
 	}
 
 	onEnter := func(text string) {
 		if text == "" { return }
 		clear()
-		state.search.participants = append(state.search.participants, SearchQueryParticipant{ text })
+		state.search.filters = append(state.search.filters, SearchQueryFilter{ text })
 		update(*state)
 	}
 
@@ -80,11 +77,11 @@ func MakeParticipantsList() (ComponentSearchParticipants, UpdateFn) {
 
 	update := func(state AppState) {
 		participants.Clear()
-		for i, participant := range state.search.participants {
+		for i, participant := range state.search.filters {
 			itemText := strconv.Itoa(i + 1) + ") " + participant.name
 			participants.AddItem(itemText, "", 0, func() {})
 		}
-		participants.SetCurrentItem(state.search.participantPos)
+		participants.SetCurrentItem(state.search.filterPos)
 	}
 
 	return participants, update
@@ -105,26 +102,8 @@ func MakeSearchContainer(participants ComponentSearchParticipants, searchInput C
 func MakeSearchOnKeyDown(state *AppState, update UpdateFn) OnKeyDownFn {
 	return func(event *tcell.EventKey) *tcell.EventKey {
 		newState := UpdateStateSearchFromKeyBind(*state, event.Rune())
-		// newState := *state
-		// newState.search.participantPos = 1
 		update(newState)
 		*state = newState
 		return nil
 	}
-	// return func(event *tcell.EventKey) *tcell.EventKey {
-	// 	var new bool
-	// 	switch event.Rune() {
-	// 	// case 'n':
-	// 	// 	new = true
-	// 	// case 'D':
-	// 	// 	participants.RemoveItem(participants.GetCurrentItem())
-	// 	// 	if participants.GetItemCount() == 0 { new = true }
-	// 	}
-	// 	if new {
-	// 		// searchContainer.AddItem(searchInput, 1, 0, 1, 1, 0, 0, false)
-	// 		// app.SetFocus(searchInput)
-	// 	}
-
-	// 	return event
-	// }
 }

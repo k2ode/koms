@@ -43,8 +43,8 @@ func MakeMockState() AppState {
 	}
 
 	state.search = SearchQuery{
-		participantPos: 0,
-		participants: []SearchQueryParticipant{
+		filterPos: 0,
+		filters: []SearchQueryFilter{
 			{ "John Doe" },
 			{ "Jane Doe" },
 		},

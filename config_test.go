@@ -45,7 +45,7 @@ func TestConfigUpdateStateFromKeyBindNextMessage(t *testing.T) {
 
 func TestConfigUpdateStateSearchFromKeyBind(t *testing.T) {
 	state := MakeMockState()
-	assert.Equal(t, state.search.participantPos, 0)
+	assert.Equal(t, state.search.filters, 0)
 	state = UpdateStateSearchFromKeyBind(state, 'j')
-	assert.Equal(t, state.search.participantPos, 1)
+	assert.Equal(t, state.search.filters, 1)
 }

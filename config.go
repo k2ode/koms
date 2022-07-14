@@ -206,12 +206,20 @@ func UpdateStateFromKeyBind(state AppState, key rune) AppState {
 
 func UpdateStateSearchFromKeyBind(state AppState, key rune) AppState {
 	getSize := func() int {
-		return len(state.search.participants) - 1
+		return len(state.search.filters) - 1
 	}
 	setPosition := func(state AppState, fn IntMod) AppState {
 		return UpdateStateSearchFilterPosFn(state, fn)
 	}
 	fallback := func(state AppState, key rune) AppState {
+		switch key {
+			case 'D':
+				filters := state.search.filters
+				pos := state.search.filterPos
+				state.search.filters = RemoveSearchQueryFilter(filters, pos)
+				break
+		}
+
 		return state
 	}
 	state = VerticleListKeyBinds(state, key, getSize, setPosition, fallback)

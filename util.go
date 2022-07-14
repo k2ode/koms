@@ -113,3 +113,7 @@ func VerticleListKeyBinds(state AppState, key rune, getSize func() int, setPosit
 
 	return state
 }
+
+func RemoveSearchQueryFilter(filters []SearchQueryFilter, pos int) []SearchQueryFilter {
+	return append(filters[:pos], filters[pos + 1:]...)
+}
