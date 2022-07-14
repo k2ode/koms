@@ -17,7 +17,7 @@ type ComponentSearchContainer = *tview.Grid
 const wordList = "Joe,Mama,Jamba"
 
 
-func MakeSearch(app *tview.Application, state *AppState) (ComponentSearch, UpdateStateFn) {
+func MakeSearch(app *tview.Application, state *AppState, updateParent UpdateStateFn) (ComponentSearch, UpdateStateFn) {
 	participants, updateParticipants := MakeParticipantsList()
 	searchInput, clear               := MakeSearchInput()
 
@@ -33,6 +33,10 @@ func MakeSearch(app *tview.Application, state *AppState) (ComponentSearch, Updat
 		height := participantLen + 3
 		search.SetRows(0, height, 0)
 		updateParticipants(state)
+
+		if !state.search.open {
+			updateParent(state)
+		}
 	}
 
 

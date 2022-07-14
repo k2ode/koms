@@ -37,7 +37,8 @@ func run() {
 		previewUpdate(newState)
 		providerUpdate(newState)
 
-		if newState.search.open { pages.ShowPage("search") }
+		if newState.search.open { pages.ShowPage("search") } else
+		{ pages.HidePage("search") }
 
 		if newState.focusInput { app.SetFocus(input) } else
 		{ inputUpdate(newState) }
@@ -64,7 +65,7 @@ func run() {
 	onKeyDown := MakeOnKeyDown(app, &state, UIUpdate)
 	messages.SetInputCapture(onKeyDown)
 
-	search, _ := MakeSearch(app, &state)
+	search, _ := MakeSearch(app, &state, UIUpdate)
 
 	pages.
 		AddPage("container", container, true, true).

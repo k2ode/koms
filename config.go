@@ -22,6 +22,8 @@ const BIND_KEY_SEARCH = 's'
 const BIND_KEY_NEXT   = '.'
 const BIND_KEY_PREV   = ','
 
+const BIND_KEY_SEARCH_FILTER_REMOVE = 'D'
+
 
 // Colors
 
@@ -213,10 +215,13 @@ func UpdateStateSearchFromKeyBind(state AppState, key rune) AppState {
 	}
 	fallback := func(state AppState, key rune) AppState {
 		switch key {
-			case 'D':
+			case BIND_KEY_SEARCH_FILTER_REMOVE:
 				filters := state.search.filters
 				pos := state.search.filterPos
 				state.search.filters = RemoveSearchQueryFilter(filters, pos)
+				break
+			case RUNE_ESCAPE:
+				state.search.open = false
 				break
 		}
 
