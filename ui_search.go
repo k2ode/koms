@@ -11,28 +11,28 @@ import (
 
 type ComponentSearch = *tview.Grid
 type ComponentSearchInput = *tview.InputField
-type ComponentSearchParticipants = *tview.List
+type ComponentSearchFilters = *tview.List
 type ComponentSearchContainer = *tview.Grid
 
 const wordList = "Joe,Mama,Jamba"
 
 
 func MakeSearch(app *tview.Application, state *AppState, updateParent UpdateStateFn) (ComponentSearch, UpdateStateFn) {
-	participants, updateParticipants := MakeParticipantsList()
-	searchInput, clear               := MakeSearchInput()
+	filters, updateFilters := MakeFiltersList()
+	searchInput, clear     := MakeSearchInput()
 
 
-	searchContainer := MakeSearchContainer(participants, searchInput)
+	searchContainer := MakeSearchContainer(filters, searchInput)
 
 
 	search := Modal(searchContainer, 40, 0)
 
 
 	update := func(state AppState) {
-		participantLen := len(state.search.filters)
-		height := participantLen + 3
+		filtersCount := len(state.search.filters)
+		height := filtersCount + 3
 		search.SetRows(0, height, 0)
-		updateParticipants(state)
+		updateFilters(state)
 
 		if !state.search.open {
 			updateParent(state)
@@ -41,7 +41,7 @@ func MakeSearch(app *tview.Application, state *AppState, updateParent UpdateStat
 
 
 	onEscape := func(s string) {
-		app.SetFocus(participants)
+		app.SetFocus(filters)
 	}
 
 	onEnter := func(text string) {
@@ -59,7 +59,7 @@ func MakeSearch(app *tview.Application, state *AppState, updateParent UpdateStat
 
 
 	onKeyDownFn := MakeSearchOnKeyDown(state, update)
-	participants.SetInputCapture(onKeyDownFn)
+	filters.SetInputCapture(onKeyDownFn)
 
 	update(*state)
 
@@ -76,28 +76,28 @@ func MakeSearchInput() (ComponentSearchInput, ClearFn) {
 	return searchInput, clearFn
 }
 
-func MakeParticipantsList() (ComponentSearchParticipants, UpdateFn) {
-	participants := tview.NewList().ShowSecondaryText(false)
+func MakeFiltersList() (ComponentSearchFilters, UpdateFn) {
+	filters := tview.NewList().ShowSecondaryText(false)
 
 	update := func(state AppState) {
-		participants.Clear()
-		for i, participant := range state.search.filters {
-			itemText := strconv.Itoa(i + 1) + ") " + participant.name
-			participants.AddItem(itemText, "", 0, func() {})
+		filters.Clear()
+		for i, filter := range state.search.filters {
+			itemText := strconv.Itoa(i + 1) + ") " + filter.name
+			filters.AddItem(itemText, "", 0, func() {})
 		}
-		participants.SetCurrentItem(state.search.filterPos)
+		filters.SetCurrentItem(state.search.filterPos)
 	}
 
-	return participants, update
+	return filters, update
 }
 
-func MakeSearchContainer(participants ComponentSearchParticipants, searchInput ComponentSearchInput) ComponentSearchContainer {
+func MakeSearchContainer(filters ComponentSearchFilters, searchInput ComponentSearchInput) ComponentSearchContainer {
 
 	searchContainer := tview.NewGrid().SetColumns(0).SetRows(0, 1)
 	searchContainer.SetBorder(true).SetTitle("search")
 
 
-	searchContainer.AddItem(participants, 0, 0, 1, 1, 0, 0, false)
+	searchContainer.AddItem(filters, 0, 0, 1, 1, 0, 0, false)
 	searchContainer.AddItem(searchInput, 1, 0, 1, 1, 0, 0, true)
 
 	return searchContainer
