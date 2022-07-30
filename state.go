@@ -163,3 +163,29 @@ func UpdateStateSearchFilterPosFn(state AppState, fn IntMod) AppState {
 	state.search.filterPos = fn(pos)
 	return state 
 }
+
+func UpdateStateSearchOpen(state AppState) AppState {
+	state.search.open = true
+	state.search.focusInput = true
+	return state
+}
+
+func UpdateStateSearchClose(state AppState) AppState {
+	state.search.open = false
+	state.search.focusInput = false
+	return state
+}
+
+func UpdateStateSearchFocus(state AppState) AppState {
+	state.search.focusInput = true
+	return state
+}
+
+func UpdateStateSearchFilters(state AppState, filters []SearchQueryFilter) AppState {
+	state.search.filters = filters
+	return state
+}
+
+func UpdateStateSearchFiltersClear(state AppState) AppState {
+	return UpdateStateSearchFilters(state, []SearchQueryFilter{})
+}

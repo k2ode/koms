@@ -5,6 +5,7 @@ import (
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/k2on/koms/types"
+	"github.com/rivo/tview"
 )
 
 // Bindings
@@ -22,7 +23,10 @@ const BIND_KEY_SEARCH = 's'
 const BIND_KEY_NEXT   = '.'
 const BIND_KEY_PREV   = ','
 
+const BIND_KEY_SEARCH_CLOSE = RUNE_ESCAPE
 const BIND_KEY_SEARCH_FILTER_REMOVE = 'D'
+const BIND_KEY_SEARCH_FILTER_CLEAR = 'C'
+const BIND_KEY_SEARCH_FOCUS = '/'
 
 
 // Colors
@@ -193,7 +197,7 @@ func UpdateStateFromKeyBind(state AppState, key rune) AppState {
 				state = UpdateStateSelectedToggle(state, id)
 				break
 			case key == BIND_KEY_SEARCH:
-				state.search.open = true
+				state = UpdateStateSearchOpen(state)
 				break
 		}
 		return state
@@ -218,10 +222,22 @@ func UpdateStateSearchFromKeyBind(state AppState, key rune) AppState {
 			case BIND_KEY_SEARCH_FILTER_REMOVE:
 				filters := state.search.filters
 				pos := state.search.filterPos
-				state.search.filters = RemoveSearchQueryFilter(filters, pos)
+
+				newFilters := RemoveSearchQueryFilter(filters, pos)
+				state = UpdateStateSearchFilters(state, newFilters)
+
+				if len(newFilters) == pos { state.search.filterPos = pos - 1 }
+				if len(state.search.filters) == 0 { state = UpdateStateSearchFocus(state) }
 				break
-			case RUNE_ESCAPE:
-				state.search.open = false
+			case BIND_KEY_SEARCH_FILTER_CLEAR:
+				state = UpdateStateSearchFiltersClear(state)
+				state = UpdateStateSearchFocus(state)
+				break
+			case BIND_KEY_SEARCH_CLOSE:
+				state = UpdateStateSearchClose(state)
+				break
+			case BIND_KEY_SEARCH_FOCUS:
+ 				state = UpdateStateSearchFocus(state) 
 				break
 		}
 
@@ -234,16 +250,22 @@ func UpdateStateSearchFromKeyBind(state AppState, key rune) AppState {
 
 func UpdateMessagesStyle(messages MessagesComponent, state AppState) {
 	isFocus := state.focusInput
-	colorBackground := GetFocusBackgroundColor(isFocus)
-	messages.SetSelectedBackgroundColor(colorBackground)
-	// colorForeground := GetFocusForegroundColor(isFocus)
-	// messages.SetSelectedTextColor(colorForeground)
+	UpdateListStyle(messages, isFocus)
 }
 
 func UpdateConversationsStyle(conversations ConversationsComponent, state AppState) {
 	isFocus := state.focusInput
+	UpdateListStyle(conversations, isFocus)
+}
+
+func UpdateSearchFiltersStyle(filters ComponentSearchFilters, state AppState) {
+	isFocus := state.search.focusInput
+	UpdateListStyle(filters, isFocus)
+}
+
+func UpdateListStyle(component *tview.List, isFocus bool) {
 	colorBackground := GetFocusBackgroundColor(isFocus)
-	conversations.SetSelectedBackgroundColor(colorBackground)
+	component.SetSelectedBackgroundColor(colorBackground)
 	// colorForeground := GetFocusForegroundColor(isFocus)
 	// conversations.SetSelectedTextColor(colorForeground)
 }

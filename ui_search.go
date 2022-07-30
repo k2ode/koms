@@ -34,6 +34,10 @@ func MakeSearch(app *tview.Application, state *AppState, updateParent UpdateStat
 		search.SetRows(0, height, 0)
 		updateFilters(state)
 
+		if state.search.focusInput {
+			app.SetFocus(searchInput)
+		}
+
 		if !state.search.open {
 			updateParent(state)
 		}
@@ -41,7 +45,14 @@ func MakeSearch(app *tview.Application, state *AppState, updateParent UpdateStat
 
 
 	onEscape := func(s string) {
-		app.SetFocus(filters)
+		if len(state.search.filters) > 0 { 
+			state.search.focusInput = false
+			update(*state)
+			app.SetFocus(filters)
+			return
+		}
+		*state = UpdateStateSearchClose(*state)
+		update(*state)
 	}
 
 	onEnter := func(text string) {
@@ -80,6 +91,8 @@ func MakeFiltersList() (ComponentSearchFilters, UpdateFn) {
 	filters := tview.NewList().ShowSecondaryText(false)
 
 	update := func(state AppState) {
+		UpdateSearchFiltersStyle(filters, state)
+
 		filters.Clear()
 		for i, filter := range state.search.filters {
 			itemText := strconv.Itoa(i + 1) + ") " + filter.name
