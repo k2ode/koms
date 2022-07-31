@@ -37,13 +37,10 @@ func run() {
 		previewUpdate(newState)
 		providerUpdate(newState)
 
-		if newState.search.open {
-			if !newState.search.opened { 
-				state.search.opened = true
-				pages.ShowPage("search")
-			} 
-		} else
-		{ pages.HidePage("search") }
+		showSearch := newState.search.open && !newState.search.opened
+		hideSearch := !newState.search.open
+		if showSearch { pages.ShowPage("search"); state.search.opened = true } else
+		if hideSearch { pages.HidePage("search") }
 
 		if newState.focusInput { app.SetFocus(input) } else
 		{ inputUpdate(newState) }
