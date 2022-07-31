@@ -39,8 +39,8 @@ func run() {
 
 		showSearch := newState.search.open && !newState.search.opened
 		hideSearch := !newState.search.open
-		if showSearch { pages.ShowPage("search"); state.search.opened = true } else
-		if hideSearch { pages.HidePage("search") }
+		if showSearch { pages.ShowPage(PAGE_NAME_SEARCH); state.search.opened = true } else
+		if hideSearch { pages.HidePage(PAGE_NAME_SEARCH) }
 
 		if newState.focusInput { app.SetFocus(input) } else
 		{ inputUpdate(newState) }
@@ -70,8 +70,8 @@ func run() {
 	search, _ := MakeSearch(app, &state, UIUpdate)
 
 	pages.
-		AddPage("container", container, true, true).
-		AddPage("search", search, true, false)
+		AddPage(PAGE_NAME_CONTAINER, container, true, true).
+		AddPage(PAGE_NAME_SEARCH, search, true, false)
 
 
 	app.SetRoot(pages, true)
