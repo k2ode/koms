@@ -223,15 +223,17 @@ func UpdateStateSearchFromKeyBind(state AppState, key rune) AppState {
 				filters := state.search.filters
 				pos := state.search.filterPos
 
-				newFilters := RemoveSearchQueryFilter(filters, pos)
-				state = UpdateStateSearchFilters(state, newFilters)
+				filtersUpdated := RemoveSearchQueryFilter(filters, pos)
+				state = UpdateStateSearchFilters(state, filtersUpdated)
 
-				if len(newFilters) == pos { state.search.filterPos = pos - 1 }
-				if len(state.search.filters) == 0 { state = UpdateStateSearchFocus(state) }
+				filtersUpdatedLen := len(filtersUpdated)
+				if filtersUpdatedLen == pos { state = UpdateStateSearchFilterPos(state, pos - 1) }
+				if filtersUpdatedLen == 0 { state = UpdateStateSearchFocus(state) }
 				break
 			case BIND_KEY_SEARCH_FILTER_CLEAR:
 				state = UpdateStateSearchFiltersClear(state)
 				state = UpdateStateSearchFocus(state)
+				state = UpdateStateSearchFilterPos(state, 0)
 				break
 			case BIND_KEY_SEARCH_CLOSE:
 				state = UpdateStateSearchClose(state)

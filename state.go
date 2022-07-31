@@ -18,6 +18,7 @@ type AppState struct {
 
 type SearchQuery struct {
 	open bool
+	opened bool
 	filters []SearchQueryFilter
 	filterPos int
 	focusInput bool
@@ -158,20 +159,23 @@ func UpdateStateSelectedToggle(state AppState, toggledId string) AppState {
 	})
 }
 
+func UpdateStateSearchFilterPos(state AppState, pos int) AppState {
+	state.search.filterPos = pos
+	return state
+}
+
 func UpdateStateSearchFilterPosFn(state AppState, fn IntMod) AppState {
-	pos := state.search.filterPos
-	state.search.filterPos = fn(pos)
-	return state 
+	return UpdateStateSearchFilterPos(state, fn(state.search.filterPos))
 }
 
 func UpdateStateSearchOpen(state AppState) AppState {
 	state.search.open = true
-	state.search.focusInput = true
-	return state
+	return UpdateStateSearchFocus(state)
 }
 
 func UpdateStateSearchClose(state AppState) AppState {
 	state.search.open = false
+	state.search.opened = false
 	state.search.focusInput = false
 	return state
 }

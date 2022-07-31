@@ -38,9 +38,7 @@ func MakeSearch(app *tview.Application, state *AppState, updateParent UpdateStat
 			app.SetFocus(searchInput)
 		}
 
-		if !state.search.open {
-			updateParent(state)
-		}
+		updateParent(state)
 	}
 
 
