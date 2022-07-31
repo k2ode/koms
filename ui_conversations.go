@@ -2,9 +2,9 @@ package main
 
 import "github.com/rivo/tview"
 
-type ConversationsComponent = *tview.List
+type ComponentConversations = *tview.List
 
-func MakeConversations(client Client, state AppState) (ConversationsComponent, UpdateStateFn) {
+func MakeConversations(client Client, state AppState) (ComponentConversations, UpdateStateFn) {
 	conversations := tview.NewList()
 	UpdateConversationsStyle(conversations, state)
 
@@ -15,7 +15,7 @@ func MakeConversations(client Client, state AppState) (ConversationsComponent, U
 	return conversations, updateConversations
 }
 
-func MakeConversationsUpdateFn(client Client, conversations ConversationsComponent) UpdateStateFn {
+func MakeConversationsUpdateFn(client Client, conversations ComponentConversations) UpdateStateFn {
 	return func(state AppState) {
 		UpdateConversationsStyle(conversations, state)
 		conversations.Clear()

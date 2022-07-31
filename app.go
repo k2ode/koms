@@ -24,8 +24,8 @@ func run() {
 	preview,       previewUpdate       := MakePreview(state)
 	input,         inputUpdate         := MakeInput(state)
 
-	providerDisplay, providerUpdate := MakeProviderDisplay(state)
-	inputContainer, _               := MakeContainerInput(state, input, providerDisplay)
+	infobar, infobarUpdate := MakeInfobar(state)
+	inputContainer, _               := MakeContainerInput(state, input, infobar)
 
 	container                          := MakeContainer(conversations, messages, inputContainer, preview)
 
@@ -35,7 +35,7 @@ func run() {
 		conversationsUpdate(newState)
 		messagesUpdate(newState)
 		previewUpdate(newState)
-		providerUpdate(newState)
+		infobarUpdate(newState)
 
 		showSearch := newState.search.open && !newState.search.opened
 		hideSearch := !newState.search.open

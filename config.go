@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/gdamore/tcell/v2"
@@ -145,9 +147,16 @@ func GetMessagePreview(state AppState, size Size) string {
 	return msg.Raw.Body
 }
 
-func GetProviderDisplay(state AppState) string {
+func GetInfobar(state AppState) string {
+	var infobar string
+
 	provider := state.conversations[state.pos].provider
-	return "provider: " + provider
+	infobar += "provider: " + provider
+
+	filterLen := len(state.search.filters)
+	if filterLen > 0 { infobar += fmt.Sprintf(", %s filter(s)", strconv.Itoa(filterLen)) }
+
+	return infobar
 }
 
 func UpdateStateFromKeyBind(state AppState, key rune) AppState {
@@ -255,7 +264,7 @@ func UpdateMessagesStyle(messages MessagesComponent, state AppState) {
 	UpdateListStyle(messages, isFocus)
 }
 
-func UpdateConversationsStyle(conversations ConversationsComponent, state AppState) {
+func UpdateConversationsStyle(conversations ComponentConversations, state AppState) {
 	isFocus := state.focusInput
 	UpdateListStyle(conversations, isFocus)
 }

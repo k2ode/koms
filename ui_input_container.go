@@ -4,7 +4,7 @@ import "github.com/rivo/tview"
 
 type ComponentInputContainer = *tview.Grid
 
-func MakeContainerInput(state AppState, input InputComponent, provider ComponentProviderDisplay) (ComponentInputContainer, UpdateStateFn) {
+func MakeContainerInput(state AppState, input ComponentInput, provider ComponentInfobar) (ComponentInputContainer, UpdateStateFn) {
 	container := tview.NewGrid().
 		SetRows(0).
 		SetColumns(COLUMNS_CONVERSATIONS, COLUMNS_MESSAGES)

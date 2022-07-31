@@ -7,9 +7,9 @@ import (
 	"github.com/rivo/tview"
 )
 
-type InputComponent = *tview.InputField
+type ComponentInput = *tview.InputField
 
-func MakeInput(state AppState) (InputComponent, UpdateStateFn) {
+func MakeInput(state AppState) (ComponentInput, UpdateStateFn) {
 	input := tview.NewInputField()
 	input.SetFieldBackgroundColor(0x000000)
 
@@ -49,7 +49,7 @@ func MakeInputUpdateFn(input *tview.InputField) UpdateStateFn {
 	}
 }
 
-func AddContainerInput(container *tview.Grid, input InputComponent) {
+func AddContainerInput(container *tview.Grid, input ComponentInput) {
 	container.AddItem(
 		input,
 		ROW_POS_INPUT,

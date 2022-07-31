@@ -2,9 +2,9 @@ package main
 
 import "github.com/rivo/tview"
 
-type PreviewComponent = *tview.TextView
+type ComponentPreview = *tview.TextView
 
-func MakePreview(state AppState) (PreviewComponent, UpdateStateFn) {
+func MakePreview(state AppState) (ComponentPreview, UpdateStateFn) {
 	preview := tview.NewTextView()
 
 	updatePreview := MakePreviewUpdateFunc(preview)
@@ -14,7 +14,7 @@ func MakePreview(state AppState) (PreviewComponent, UpdateStateFn) {
 	return preview, updatePreview
 }
 
-func MakePreviewUpdateFunc(preview PreviewComponent) UpdateStateFn {
+func MakePreviewUpdateFunc(preview ComponentPreview) UpdateStateFn {
 	return func(state AppState) {
 		msgs, exists := state.cache.messages[state.pos]
 		if !exists { preview.SetText(""); return }
@@ -28,7 +28,7 @@ func MakePreviewUpdateFunc(preview PreviewComponent) UpdateStateFn {
 	}
 }
 
-func AddContainerPreview(container *tview.Grid, preview PreviewComponent) {
+func AddContainerPreview(container *tview.Grid, preview ComponentPreview) {
 	container.AddItem(
 		preview,
 		ROW_POS_PREVIEW,
