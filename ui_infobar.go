@@ -11,7 +11,6 @@ func MakeInfobar(state AppState) (ComponentInfobar, UpdateStateFn) {
 	return display, updateInfobar
 }
 
-
 func MakeUpdateFnInfoBar(display ComponentInfobar) UpdateStateFn {
 	return func(state AppState) {
 		provider := GetInfobar(state)

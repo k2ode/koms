@@ -25,8 +25,10 @@ func MakeMessagesUpdateFn(client Client, messages MessagesComponent) UpdateState
 		conversationMessages, exists := GetCacheMessages(state)
 		if !exists { return }
 
+		messagesFiltered := FilterMessages(conversationMessages, state.search.filters)
+
 		conversation := GetStateConversation(state)
-		for _, message := range conversationMessages {
+		for _, message := range messagesFiltered {
 			parsedMessage := ParseMessage(client, conversation, message)
 			messages.AddItem(parsedMessage, "", 0, nil)
 		}

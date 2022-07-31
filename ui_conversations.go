@@ -1,6 +1,8 @@
 package main
 
-import "github.com/rivo/tview"
+import (
+	"github.com/rivo/tview"
+)
 
 type ComponentConversations = *tview.List
 
@@ -18,8 +20,11 @@ func MakeConversations(client Client, state AppState) (ComponentConversations, U
 func MakeConversationsUpdateFn(client Client, conversations ComponentConversations) UpdateStateFn {
 	return func(state AppState) {
 		UpdateConversationsStyle(conversations, state)
+
+		conversationsFiltered := FilterConversations(state.cache.conversations, state.search.filters)
+
 		conversations.Clear()
-		for _, conversation := range state.cache.conversations {
+		for _, conversation := range conversationsFiltered {
 			label := ParseConversation(client, conversation)
 			conversations.AddItem(label, "", 0, nil)
 		}
