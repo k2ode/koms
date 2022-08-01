@@ -1,8 +1,6 @@
 package main
 
 import (
-	"strconv"
-
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
@@ -27,18 +25,25 @@ func MakeSearch(app *tview.Application, state *AppState, updateParent UpdateStat
 
 	search := Modal(searchContainer, 40, 0)
 
+	update := func(newState AppState) {
+		// outdatedResult := len(state.search.filters) != len(newState.search.filters)
+		outdatedResult := true
+		if outdatedResult {
+			*state = newState
 
-	update := func(state AppState) {
-		filtersCount := len(state.search.filters)
+			newState.search.result = Filter(newState)
+		}
+
+		filtersCount := len(newState.search.filters)
 		height := filtersCount + 3
 		search.SetRows(0, height, 0)
-		updateFilters(state)
+		updateFilters(newState)
 
-		if state.search.focusInput {
+		if newState.search.focusInput {
 			app.SetFocus(searchInput)
 		}
 
-		updateParent(state)
+		updateParent(newState)
 	}
 
 
@@ -77,7 +82,7 @@ func MakeSearch(app *tview.Application, state *AppState, updateParent UpdateStat
 
 type ClearFn = func()
 func MakeSearchInput() (ComponentSearchInput, ClearFn) {
-	searchInput := tview.NewInputField().SetPlaceholder("search...")
+	searchInput := tview.NewInputField().SetPlaceholder(INPUT_PLACEHOLDER_SEARCH)
 
 	clearFn := func() {
 		searchInput.SetText("")
@@ -93,7 +98,7 @@ func MakeFiltersList() (ComponentSearchFilters, UpdateFn) {
 
 		filters.Clear()
 		for i, filter := range state.search.filters {
-			itemText := strconv.Itoa(i + 1) + ") " + filter.name
+			itemText := GetFilter(filter, i)
 			filters.AddItem(itemText, "", 0, func() {})
 		}
 		filters.SetCurrentItem(state.search.filterPos)
@@ -105,7 +110,7 @@ func MakeFiltersList() (ComponentSearchFilters, UpdateFn) {
 func MakeSearchContainer(filters ComponentSearchFilters, searchInput ComponentSearchInput) ComponentSearchContainer {
 
 	searchContainer := tview.NewGrid().SetColumns(0).SetRows(0, 1)
-	searchContainer.SetBorder(true).SetTitle("search")
+	searchContainer.SetBorder(true).SetTitle(SEARCH_TITLE)
 
 
 	searchContainer.AddItem(filters, 0, 0, 1, 1, 0, 0, false)

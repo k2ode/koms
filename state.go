@@ -22,7 +22,10 @@ type SearchQuery struct {
 	filters []SearchQueryFilter
 	filterPos int
 	focusInput bool
+	result SearchResult
 }
+
+type SearchResult = AppCache
 
 type SearchQueryFilter struct {
 	name string
@@ -51,6 +54,16 @@ func MakeEmptyState() AppState {
 		pos: 0,
 		jumpBy: -1,
 	}
+}
+
+func GetStateConversations(state AppState) []types.Conversation {
+	isFiltered := len(state.search.filters) > 0
+	if isFiltered { return state.search.result.conversations }
+	return state.cache.conversations
+}
+
+func GetStateConversationsLen(state AppState) int {
+	return len(GetStateConversations(state))
 }
 
 func GetStateConversation(state AppState) ConversationState {

@@ -2,6 +2,18 @@ package main
 
 import "github.com/k2on/koms/types"
 
+func Filter(state AppState) SearchResult {
+	filters := state.search.filters
+
+	conversations := FilterConversations(state.cache.conversations, filters)
+	messages := make(map[int][]types.Message, 0)
+
+	return AppCache{
+		conversations,
+		messages,
+	}
+}
+
 func FilterConversations(conversations []types.Conversation, filters []SearchQueryFilter) []types.Conversation {
 	if len(filters) == 0 { return conversations }
 

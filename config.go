@@ -31,6 +31,11 @@ const BIND_KEY_SEARCH_FILTER_CLEAR = 'C'
 const BIND_KEY_SEARCH_FOCUS = '/'
 
 
+// Text
+
+const INPUT_PLACEHOLDER_SEARCH = "search..."
+const SEARCH_TITLE = "search"
+
 // Colors
 
 const FOCUS_BACKGROUND_NORMAL = tcell.ColorWhite
@@ -159,6 +164,10 @@ func GetInfobar(state AppState) string {
 	return infobar
 }
 
+func GetFilter(filter SearchQueryFilter, pos int) string {
+	return strconv.Itoa(pos + 1) + ") " + filter.name
+}
+
 func UpdateStateFromKeyBind(state AppState, key rune) AppState {
 	getSize := func() int { 
 		msgs, exists := GetCacheMessages(state)
@@ -171,7 +180,7 @@ func UpdateStateFromKeyBind(state AppState, key rune) AppState {
 	fallback := func(state AppState, key rune) AppState {
 		switch {
 			case key == BIND_KEY_LEFT || key == BIND_KEY_RIGHT:
-				maxConvos := len(state.cache.conversations) - 1
+				maxConvos := GetStateConversationsLen(state) - 1
 
 				var fn func(int) int
 				if key == BIND_KEY_RIGHT { fn = MakeInc(maxConvos) } else

@@ -17,18 +17,18 @@ func MakeConversations(client Client, state AppState) (ComponentConversations, U
 	return conversations, updateConversations
 }
 
-func MakeConversationsUpdateFn(client Client, conversations ComponentConversations) UpdateStateFn {
+func MakeConversationsUpdateFn(client Client, component ComponentConversations) UpdateStateFn {
 	return func(state AppState) {
-		UpdateConversationsStyle(conversations, state)
+		UpdateConversationsStyle(component, state)
 
-		conversationsFiltered := FilterConversations(state.cache.conversations, state.search.filters)
+		conversations := GetStateConversations(state)
 
-		conversations.Clear()
-		for _, conversation := range conversationsFiltered {
+		component.Clear()
+		for _, conversation := range conversations {
 			label := ParseConversation(client, conversation)
-			conversations.AddItem(label, "", 0, nil)
+			component.AddItem(label, "", 0, nil)
 		}
-		conversations.SetCurrentItem(state.pos)
+		component.SetCurrentItem(state.pos)
 	}
 }
 
