@@ -12,10 +12,7 @@ type ComponentSearchInput = *tview.InputField
 type ComponentSearchFilters = *tview.List
 type ComponentSearchContainer = *tview.Grid
 
-const wordList = "Joe,Mama,Jamba"
-
-
-func MakeSearch(app *tview.Application, state *AppState, updateParent UpdateStateFn) (ComponentSearch, UpdateStateFn) {
+func MakeSearch(app *tview.Application, client Client, state *AppState, updateParent UpdateStateFn) (ComponentSearch, UpdateStateFn) {
 	filters, updateFilters := MakeFiltersList()
 	searchInput, clear     := MakeSearchInput()
 
@@ -68,7 +65,7 @@ func MakeSearch(app *tview.Application, state *AppState, updateParent UpdateStat
 	doneFn := MakeInputDoneFn(searchInput, onEscape, onEnter)
 	searchInput.SetDoneFunc(doneFn)
 
-	autocomplete := MakeInputAutocompleteFn()
+	autocomplete := MakeSearchAutocompleteFn(client)
 	searchInput.SetAutocompleteFunc(autocomplete)
 
 

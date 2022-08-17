@@ -67,7 +67,7 @@ func run() {
 	onKeyDown := MakeOnKeyDown(app, &state, UIUpdate)
 	messages.SetInputCapture(onKeyDown)
 
-	search, _ := MakeSearch(app, &state, UIUpdate)
+	search, _ := MakeSearch(app, client, &state, UIUpdate)
 
 	pages.
 		AddPage(PAGE_NAME_CONTAINER, container, true, true).

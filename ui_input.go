@@ -1,8 +1,6 @@
 package main
 
 import (
-	"strings"
-
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
@@ -30,17 +28,6 @@ func MakeInputDoneFn(input *tview.InputField, handleEscape, handleEnter HandleIn
 }
 
 type AutocompleteFn = func(currentText string) (entries []string)
-func MakeInputAutocompleteFn() AutocompleteFn {
-	return func(draft string) (entries []string) {
-		d := strings.ToLower(draft)
-		r := []string{}
-		if d == "" { return r }
-		for _, name := range strings.Split(wordList, ",") {
-			if strings.HasPrefix(strings.ToLower(name), d) { r = append(r, name)}
-		}
-		return r
-	}
-}
 
 func MakeInputUpdateFn(input *tview.InputField) UpdateStateFn {
 	return func(state AppState) {

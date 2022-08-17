@@ -268,6 +268,21 @@ func UpdateStateSearchFromKeyBind(state AppState, key rune) AppState {
 	return state
 }
 
+func MakeSearchAutocompleteFn(client Client) AutocompleteFn {
+	return func(draft string) (entries []string) {
+		draftedParsed := strings.ToLower(draft)
+		results := []string{}
+		if draftedParsed == "" { return results }
+
+		// client.GetContacts()
+		// for _, name := range strings.Split(wordList, ",") {
+		// 	if strings.HasPrefix(strings.ToLower(name), d) { r = append(r, name)}
+		// }
+
+		return results
+	}
+}
+
 func UpdateMessagesStyle(messages MessagesComponent, state AppState) {
 	isFocus := state.focusInput
 	UpdateListStyle(messages, isFocus)
