@@ -33,23 +33,27 @@ const (
 	REACTION_EMOJI_QUESTION  = "❓"
 )
 
+const URL_IMAGE_NOT_FOUND = "https://www.publicdomainpictures.net/pictures/280000/t2/not-found-image-15383864787lu.jpg"
 
 type providerIMessage struct {
-	db *sql.DB
+	db      *sql.DB
 	handles Handles
-	rowIds map[string]int
+	rowIds  map[string]int
+	dirHome string
 }
 
 type Handles map[int]string
+type Attachments map[int64]string
 
 func NewProviderIMessage() (Provider, error) {
+	dirHome := os.Getenv("HOME")
 	db, err := sql.Open(
 		"sqlite3",
-		path.Join(os.Getenv("HOME"), "Library/Messages/chat.db?mode=ro"),
+		path.Join(dirHome, "Library/Messages/chat.db?mode=ro"),
 	)
 	if err != nil { return nil, err }
 
-	provider := &providerIMessage{ db, Handles{}, make(map[string]int) }
+	provider := &providerIMessage{ db, Handles{}, make(map[string]int), dirHome }
 
 	handles, err := provider.getHandles()
 	if err != nil { return nil, err }
@@ -112,11 +116,55 @@ func (provider *providerIMessage) GetConversations() ([]ConversationRaw, error) 
 }
 
 
+func GetConversationAttachments(provider *providerIMessage, id string) (Attachments, error) {
+	rowId, exists := provider.rowIds[id]
+	if !exists { panic("rowId does not exist") }
+
+	rows, err := provider.runSQL(`SELECT "attachment"."filename", "attachment"."mime_type", "message_attachment_join"."message_id" FROM attachment
+	LEFT JOIN "message_attachment_join" ON attachment."ROWID" = "message_attachment_join"."attachment_id"
+	LEFT JOIN "chat_message_join" ON "message_attachment_join"."message_id" = "chat_message_join"."message_id"
+	WHERE "chat_message_join"."chat_id" = ?
+	AND "attachment"."start_date" > 0
+	ORDER BY "attachment"."created_date" DESC
+	LIMIT 20`, rowId)
+	if err != nil { return nil, err }
+	defer rows.Close()
+
+	attachments := make(Attachments)
+
+	for rows.Next() {
+		var filename *string
+		var mimetype *string
+		var messageId int64
+
+		err = rows.Scan(&filename, &mimetype, &messageId)
+		if err != nil { return nil, err }
+
+		attachmentType := "unknown"
+		if mimetype != nil { attachmentType = *mimetype }
+
+		isImage := strings.HasPrefix(attachmentType, "image")
+		if !isImage { continue }
+
+		url := URL_IMAGE_NOT_FOUND
+		if filename != nil {
+			url = *filename 
+			url = strings.Replace(url, "~/", provider.dirHome + "/", 1)
+		}
+
+		attachments[messageId] = url;
+	}
+	return attachments, nil
+}
+
 func (provider *providerIMessage) GetConversationMessages(id string) ([]MessageRaw, error) {
 	rowId, exists := provider.rowIds[id]
 	if !exists { panic("rowId does not exist") }
 
-	rows, err := provider.runSQL(`SELECT message.guid, message.date, message.text, message.handle_id, message.is_from_me, message.associated_message_guid, message.associated_message_type
+	attachments, err := GetConversationAttachments(provider, id)
+	if err != nil { return nil, err }
+
+	rows, err := provider.runSQL(`SELECT message.ROWID, message.guid, message.date, message.text, message.handle_id, message.is_from_me, message.associated_message_guid, message.associated_message_type
 	FROM message
 	LEFT JOIN "chat_message_join" ON message.ROWID = "chat_message_join"."message_id"
 	WHERE "chat_message_join"."chat_id" = ?
@@ -134,6 +182,7 @@ func (provider *providerIMessage) GetConversationMessages(id string) ([]MessageR
 
 
 	for rows.Next() {
+		var rowId int64
 		var id string
 		var timestamp int64
 		var text *string
@@ -142,7 +191,7 @@ func (provider *providerIMessage) GetConversationMessages(id string) ([]MessageR
 		var associated_message_id *string
 		var associated_message_type int
 
-		err = rows.Scan(&id, &timestamp, &text, &handle_id, &from_me, &associated_message_id, &associated_message_type)
+		err = rows.Scan(&rowId, &id, &timestamp, &text, &handle_id, &from_me, &associated_message_id, &associated_message_type)
 		if err != nil { return nil, err }
 
 		var from string
@@ -172,7 +221,17 @@ func (provider *providerIMessage) GetConversationMessages(id string) ([]MessageR
 		body := ""
 		if text != nil { body = *text }
 
-
+		images := []Image{}
+		url, has := attachments[rowId]
+		if has {
+			image := Image{
+				Width: 200,
+				Height: 200,
+				URL: url,
+			}
+			images = append(images, image)
+			body = "IMAGE" + body
+		}
 
 		message := MessageRaw{
 			Id: id,
@@ -180,6 +239,7 @@ func (provider *providerIMessage) GetConversationMessages(id string) ([]MessageR
 			Timestamp: cocoaTimestampToTime(timestamp),
 			From: from,
 			Reactions: []Reaction{},
+			Images: images,
 		}
 
 		messages = append(messages, message)
